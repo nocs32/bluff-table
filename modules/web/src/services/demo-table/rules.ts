@@ -1,4 +1,4 @@
-import { pickBotName } from '@bluff-table/engine';
+import { pickBotName, rollCharacter } from '@bluff-table/engine';
 import { playerColors, type PlayerColor } from '@bluff-table/protocol';
 import type { DemoLanguage, DemoMember } from './types';
 
@@ -19,17 +19,17 @@ const sampleProfiles: ReadonlyArray<{ name: string; language: DemoLanguage }> = 
 ];
 
 export const freeColor = (members: readonly DemoMember[]): PlayerColor =>
-  playerColors.find((color) => !members.some((member) => member.color === color)) ?? 'indigo';
+  playerColors.find((color) => !members.some((member) => member.color === color)) ?? 'teal';
 
 // The next sample player who isn't at the table yet.
-export const nextSample = (members: readonly DemoMember[], createId: () => string): DemoMember | null => {
+export const nextSample = (members: readonly DemoMember[], createId: () => string, random: () => number): DemoMember | null => {
   const profile = sampleProfiles.find((candidate) => !members.some((member) => member.name === candidate.name));
 
-  return profile ? { id: createId(), ...profile, color: freeColor(members), connected: true, bot: false, sample: true } : null;
+  return profile ? { id: createId(), ...profile, color: freeColor(members), connected: true, bot: false, sample: true, character: rollCharacter(random) } : null;
 };
 
 // A bot, named the way the server names them.
-export const newBot = (members: readonly DemoMember[], createId: () => string): DemoMember => ({
+export const newBot = (members: readonly DemoMember[], createId: () => string, random: () => number): DemoMember => ({
   id: `bot-${createId()}`,
   name: pickBotName(new Set(members.map((member) => member.name))),
   color: freeColor(members),
@@ -37,4 +37,5 @@ export const newBot = (members: readonly DemoMember[], createId: () => string): 
   bot: true,
   sample: false,
   language: 'en',
+  character: rollCharacter(random),
 });

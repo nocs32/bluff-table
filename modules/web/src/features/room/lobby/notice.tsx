@@ -7,12 +7,12 @@ import { RoomLobbyNoticeRoot } from './styled-components';
 // getting lighter (spec D22). It sits between the lobby's cards, so it never covers them. Click it
 // to close it.
 export const RoomLobbyNotice = observer(function RoomLobbyNotice(): ReactElement | null {
-  const { notice, layout } = useRootStore().ui;
+  const { notice } = useRootStore().ui;
 
   if (!notice.isShown) return null;
 
   return (
-    <RoomLobbyNoticeRoot role="status" compact={layout.isCompact} onClick={notice.hide}>
+    <RoomLobbyNoticeRoot role="status" onClick={notice.hide}>
       {notice.text}
     </RoomLobbyNoticeRoot>
   );

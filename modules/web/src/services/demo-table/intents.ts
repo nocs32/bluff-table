@@ -1,4 +1,4 @@
-import type { GameSettingsPatch, TableIntents, TableIntentType } from '@bluff-table/protocol';
+import type { Character, GameSettingsPatch, PlayerColor, TableIntents, TableIntentType } from '@bluff-table/protocol';
 
 export type DemoHandlers = { [K in TableIntentType]: (memberId: string, message: TableIntents[K]) => void };
 
@@ -9,6 +9,8 @@ export interface DemoMoves {
   rename: (memberId: string, name: string) => void;
   addBot: (memberId: string) => void;
   removeBot: (memberId: string, botId: string) => void;
+  dress: (memberId: string, character: Character, color: PlayerColor) => void;
+  look: (memberId: string, x: number, y: number) => void;
 }
 
 const ignore = (): void => undefined;
@@ -24,4 +26,6 @@ export const demoHandlers = (moves: DemoMoves): DemoHandlers => ({
   rename: (id, { name }) => moves.rename(id, name),
   addBot: (id) => moves.addBot(id),
   removeBot: (id, { memberId }) => moves.removeBot(id, memberId),
+  dress: (id, { character, color }) => moves.dress(id, character, color),
+  look: (id, { x, y }) => moves.look(id, x, y),
 });

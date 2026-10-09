@@ -1,3 +1,4 @@
+import { rollCharacter } from '@bluff-table/engine';
 import { cleanPersonName } from '@bluff-table/protocol';
 import type { TableClientService, TableLink } from '../types';
 import { DemoReferee } from './referee';
@@ -34,7 +35,7 @@ export const createDemoTable = (deps: DemoDeps): TableClientService => ({
     // After `open` resolves, so the store already knows who it is. Three sample players sit
     // down with you, and a fourth a little later.
     deps.schedule(() => {
-      const me: DemoMember = { id: meId, name: cleanPersonName(name ?? '') || defaultName, color: freeColor([]), connected: true, bot: false, sample: false, language: 'en' };
+      const me: DemoMember = { id: meId, name: cleanPersonName(name ?? '') || defaultName, color: freeColor([]), connected: true, bot: false, sample: false, language: 'en', character: rollCharacter(deps.random) };
 
       referee.join(me);
       [0, 1, 2].forEach(() => referee.addSample());

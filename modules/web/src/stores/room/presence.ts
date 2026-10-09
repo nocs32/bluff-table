@@ -1,5 +1,6 @@
-import type { MemberSnapshot } from '@bluff-table/protocol';
+import type { Character, MemberSnapshot } from '@bluff-table/protocol';
 import { makeAutoObservable } from 'mobx';
+import type { PortraitService } from '../../services';
 import type { Translate } from '../locale';
 import type { PlayerColor, PresenceStatus } from './types';
 
@@ -13,10 +14,18 @@ export interface PlayerView {
   isBot: boolean;
   // Shown after the name: "you", "bot", "reconnecting" or nothing.
   note: string;
+  character: Character;
+  // Their face, drawn by code, for chips and lists.
+  portrait: string;
+  // Tonight's wins, in dollars (spec D16): on their wanted poster.
+  bounty: string;
+  // The poster's reward line.
+  reward: string;
 }
 
 export interface RoomPresenceDeps {
   t: Translate;
+  portraits: PortraitService;
 }
 
 const stackSize = 5;
@@ -61,6 +70,12 @@ export class RoomPresenceStore {
     return this.#deps.t('people.show', { number: this.count });
   }
 
+  // The wanted posters on the wall: the four highest bounties tonight (everyone's is $0 until the
+  // games are played).
+  get posters(): PlayerView[] {
+    return this.views.slice(0, 4);
+  }
+
   get bots(): PlayerView[] {
     return this.views.filter((view) => view.isBot);
   }
@@ -76,6 +91,20 @@ export class RoomPresenceStore {
   receive(members: MemberSnapshot[], meId: string): void {
     this.members = members;
     this.meId = meId;
+  }
+
+  get ids(): string[] {
+    return this.members.map((member) => member.id);
+  }
+
+  // Colours someone other than you wears.
+  get takenColors(): Map<PlayerColor, string> {
+    return new Map(this.members.filter((member) => member.id !== this.meId).map((member) => [member.color, member.name]));
+  }
+
+  // Shows a new look before the table confirms it.
+  dress(id: string, character: Character, color: PlayerColor): void {
+    this.members = this.members.map((member) => (member.id === id ? { ...member, character, color } : member));
   }
 
   // Shows a new name before the table confirms it.
@@ -95,6 +124,10 @@ export class RoomPresenceStore {
       isMe,
       isBot: member.bot,
       note: this.#noteFor(member, isMe),
+      character: member.character,
+      portrait: this.#deps.portraits.portrait(member.character, member.color),
+      bounty: this.#deps.t('people.bounty', { amount: 0 }),
+      reward: this.#deps.t('table.reward', { amount: 0 }),
     };
   }
 

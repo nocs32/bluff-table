@@ -15,18 +15,18 @@ export const RoomTopBarSoundPanel = observer(function RoomTopBarSoundPanel(): Re
       <Popover.Title asChild>
         <RoomTopBarSoundPanelTitle>{t('sound.title')}</RoomTopBarSoundPanelTitle>
       </Popover.Title>
-      <SettingSwitch label={t('sound.game')} hint={t('sound.hint')} checked={sound.isOn} surface="room" onChange={sound.setOn} />
+      <SettingSwitch label={t('sound.game')} hint={t('sound.hint')} checked={sound.isOn} surface="print" onChange={sound.setOn} />
       <SettingSlider
         label={t('sound.volume')}
         valueText={sound.volumeText}
         value={sound.volume}
         range={{ min: 0, max: 100, step: 5 }}
         disabled={!sound.isOn}
-        surface="room"
+        surface="print"
         onPreview={sound.previewVolume}
         onCommit={sound.commitVolume}
       />
-      <SettingSwitch label={t('graphics.light')} hint={t('graphics.hint')} checked={graphics.isLight} surface="room" onChange={graphics.setLight} />
+      <SettingSwitch label={t('graphics.light')} hint={t('graphics.hint')} checked={graphics.isLight} surface="print" onChange={graphics.setLight} />
     </PanelContent>
   );
 });

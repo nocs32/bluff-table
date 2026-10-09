@@ -1,4 +1,4 @@
-import type { FeedItem, GameSnapshot, MemberSnapshot, TableReactionEvent } from './table.js';
+import type { FeedItem, GameSnapshot, MemberSnapshot, TableFaceEvent, TableLookEvent, TableReactionEvent } from './table.js';
 import type { TableErrorEvent } from './table-errors.js';
 
 // Server → client events of the live table. The web app's table client turns them back into the
@@ -22,5 +22,7 @@ export interface TableEvents {
   view: TableViewEvent;
   feed: TableFeedEvent;
   reaction: TableReactionEvent;
+  look: TableLookEvent;
+  face: TableFaceEvent;
   error: TableErrorEvent;
 }

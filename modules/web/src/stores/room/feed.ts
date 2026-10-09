@@ -10,6 +10,8 @@ export interface FeedEntry {
   text: string;
   authorName: string;
   authorInitial: string;
+  // Their face, while they're still at the table.
+  authorPortrait: string | null;
   authorColor: PlayerColor;
   timeLabel: string;
   startsGroup: boolean;
@@ -127,6 +129,7 @@ export class RoomFeedStore {
       text: item.kind === 'message' ? item.text : describe(item.event, locale.t),
       authorName: authorName || locale.t('chat.someone'),
       authorInitial: authorName.charAt(0).toUpperCase() || '?',
+      authorPortrait: author?.portrait ?? null,
       authorColor: author?.color ?? item.authorColor,
       timeLabel: locale.formatTime(item.at),
       startsGroup: isGroupStart(item, previous),

@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest';
 import { TableRoomFeed } from './feed.js';
 
-const ana = { id: 'a', name: 'Ana', color: 'sky' } as const;
+const ana = { id: 'a', name: 'Ana', color: 'blue' } as const;
 
 const createFeed = (maxItems = 10): TableRoomFeed => {
   let id = 0;
@@ -17,8 +17,8 @@ test('chat lines are trimmed and empty ones dropped; system lines keep their eve
   feed.system(ana, { type: 'joined' });
 
   expect(feed.items).toEqual([
-    { id: 'line-1', authorId: 'a', authorName: 'Ana', authorColor: 'sky', at: 1000, kind: 'message', text: 'hello there' },
-    { id: 'line-2', authorId: 'a', authorName: 'Ana', authorColor: 'sky', at: 1000, kind: 'system', event: { type: 'joined' } },
+    { id: 'line-1', authorId: 'a', authorName: 'Ana', authorColor: 'blue', at: 1000, kind: 'message', text: 'hello there' },
+    { id: 'line-2', authorId: 'a', authorName: 'Ana', authorColor: 'blue', at: 1000, kind: 'system', event: { type: 'joined' } },
   ]);
 });
 

@@ -27,7 +27,7 @@ interface SettingSliderProps {
   onCommit: () => void;
 }
 
-// A numeric setting: a groove in the four card colours with a poker chip for a handle.
+// A numeric setting: an inked scale with a revolver's cylinder for a handle.
 export function SettingSlider({ label, valueText, hint, value, range, disabled = false, surface, onPreview, onCommit }: SettingSliderProps): ReactElement {
   return (
     <SettingSliderRoot value={[value]} min={range.min} max={range.max} step={range.step} disabled={disabled} onValueChange={(details) => onPreview(details.value)} onValueChangeEnd={onCommit}>

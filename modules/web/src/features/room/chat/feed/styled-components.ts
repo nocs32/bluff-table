@@ -1,7 +1,7 @@
 import { styled } from 'styled-system/jsx';
 
 export const RoomChatFeedRoot = styled('div', {
-  base: { flex: '1', minHeight: '0', overflowY: 'auto', paddingBlock: '8px', overscrollBehavior: 'contain' },
+  base: { flex: '1', minHeight: '0', overflowY: 'auto', paddingBlock: '8px', overscrollBehavior: 'contain', scrollbarWidth: 'thin', scrollbarColor: '{colors.paper.line} transparent' },
 });
 
 export const RoomChatFeedMessageRoot = styled('article', {
@@ -11,7 +11,7 @@ export const RoomChatFeedMessageRoot = styled('article', {
     columnGap: '8px',
     paddingInline: '8px',
     paddingBlock: '2px',
-    _hover: { bg: 'bg.hover' },
+    _hover: { bg: 'print.hover' },
   },
   variants: {
     startsGroup: {
@@ -23,7 +23,7 @@ export const RoomChatFeedMessageRoot = styled('article', {
 });
 
 export const RoomChatFeedGutter = styled('div', {
-  base: { display: 'flex', justifyContent: 'center', paddingTop: '2px' },
+  base: { display: 'flex', justifyContent: 'center', paddingTop: '4px' },
 });
 
 export const RoomChatFeedMeta = styled('div', {
@@ -31,11 +31,11 @@ export const RoomChatFeedMeta = styled('div', {
 });
 
 export const RoomChatFeedAuthor = styled('span', {
-  base: { fontFamily: 'display', fontSize: '15px', fontWeight: '700' },
+  base: { fontFamily: 'display', fontSize: '15px', fontWeight: '800' },
 });
 
 export const RoomChatFeedTime = styled('time', {
-  base: { fontSize: '12px', color: 'fg.subtle', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
+  base: { fontSize: '12px', color: 'print.soft', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
 });
 
 export const RoomChatFeedText = styled('p', {
@@ -51,10 +51,11 @@ export const RoomChatFeedSystemRoot = styled('div', {
     paddingInline: '8px',
     paddingBlock: '6px',
     fontSize: '13px',
-    color: 'fg.muted',
+    fontStyle: 'italic',
+    color: 'print.muted',
   },
 });
 
 export const RoomChatFeedSystemName = styled('span', {
-  base: { fontWeight: '700', color: 'fg.default' },
+  base: { fontStyle: 'normal', fontWeight: '700', color: 'print.ink' },
 });

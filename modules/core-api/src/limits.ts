@@ -26,6 +26,9 @@ export const limits = {
       rename: { count: 10, windowMs: 10_000 },
       addBot: { count: 10, windowMs: 5000 },
       removeBot: { count: 10, windowMs: 5000 },
+      dress: { count: 20, windowMs: 5000 },
+      // Up to 20 a second in (spec §10.5); the browser sends at most 15.
+      look: { count: 20, windowMs: 1000 },
     } satisfies Record<TableIntentType, Rate>,
   },
 } as const;

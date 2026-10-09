@@ -1,9 +1,10 @@
 import * as v from 'valibot';
-import { personNameMaxLength } from './players.js';
+import { characterSchema } from './characters.js';
+import { personNameMaxLength, playerColors } from './players.js';
 
 // Bumped whenever an intent or an event changes shape. A web app on another version is turned
 // away with PROTOCOL_MISMATCH and asked to reload.
-export const tableProtocolVersion = 1;
+export const tableProtocolVersion = 2;
 
 // The Colyseus room type the web app creates and joins.
 export const tableRoomName = 'table';
@@ -43,6 +44,9 @@ const memberId = v.pipe(v.string(), v.maxLength(64));
 
 const empty = v.strictObject({});
 
+// A head's direction, each way from -1 to 1 (spec §7.1).
+const unit = v.pipe(v.number(), v.minValue(-1), v.maxValue(1));
+
 // Sent with create and join. `name` is the name this browser picked before (null: the table makes one up).
 export const tableJoinOptionsSchema = v.strictObject({
   protocolVersion: v.pipe(v.number(), v.integer()),
@@ -63,6 +67,11 @@ export const tableIntentSchemas = {
   // Anyone in the lobby may sit a bot in a free seat, or send one away (spec §4.2).
   addBot: empty,
   removeBot: v.strictObject({ memberId }),
+  // A new look for your character, and your colour, in the lobby (spec D7). A colour someone else
+  // wears is refused.
+  dress: v.strictObject({ character: characterSchema, color: v.picklist(playerColors) }),
+  // Where your head points now (spec §7.1): up to 15 times a second, only when it moved.
+  look: v.strictObject({ x: unit, y: unit }),
 };
 
 export type TableIntentType = keyof typeof tableIntentSchemas;

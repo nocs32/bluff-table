@@ -4,10 +4,12 @@ import type { DemoControls, Services } from '../../services';
 import type { LocaleStore, Translate } from '../locale';
 import { NameFieldStore } from '../name-field';
 import type { UiStore } from '../ui';
+import { RoomCharacterStore } from './character';
 import { RoomChatPaceStore } from './chat-pace';
 import { RoomConnectionStore } from './connection';
 import { RoomFeedStore } from './feed';
 import { RoomGameStore } from './game';
+import { RoomHeadsStore } from './heads';
 import { RoomPresenceStore } from './presence';
 import { RoomReactionsStore } from './reactions';
 import { RoomSeatsStore } from './seats';
@@ -23,6 +25,8 @@ const createConnection = (room: RoomStore, services: Services, t: Translate): Ro
     receivers: {
       snapshot: (snapshot) => room.receiveSnapshot(snapshot),
       reaction: (event) => room.receiveReaction(event),
+      look: (event) => room.heads.receiveLook(event),
+      face: (event) => room.heads.receiveFace(event),
       refused: (event) => room.receiveRefusal(event),
     },
   });
@@ -43,6 +47,8 @@ export class RoomStore {
   readonly presence: RoomPresenceStore;
   readonly game: RoomGameStore;
   readonly seats: RoomSeatsStore;
+  readonly heads: RoomHeadsStore;
+  readonly character: RoomCharacterStore;
   readonly feed: RoomFeedStore;
   readonly chatPace: RoomChatPaceStore;
   readonly reactions: RoomReactionsStore;
@@ -58,11 +64,15 @@ export class RoomStore {
     this.#services = services;
     this.#ui = ui;
     this.connection = createConnection(this, services, t);
-    this.presence = new RoomPresenceStore({ t });
+    this.presence = new RoomPresenceStore({ t, portraits: services.portraits });
 
-    this.game = new RoomGameStore({ t, send });
+    this.game = new RoomGameStore({ t, send, notify: ui.notice.show, isReady: () => this.seats.isReady });
 
-    this.seats = new RoomSeatsStore({ t, presence: this.presence, send, isLobby: () => this.game.state === 'lobby' });
+    const isLobby = (): boolean => this.game.state === 'lobby';
+
+    this.seats = new RoomSeatsStore({ t, presence: this.presence, send, isLobby });
+    this.heads = new RoomHeadsStore({ send, now: services.now });
+    this.character = new RoomCharacterStore({ t, presence: this.presence, send, random: services.random, isLobby });
     this.chatPace = new RoomChatPaceStore({ t, now: services.now, schedule: services.schedule });
 
     this.feed = new RoomFeedStore({
@@ -100,6 +110,7 @@ export class RoomStore {
 
   receiveSnapshot(snapshot: TableSnapshot): void {
     this.presence.receive(snapshot.members, this.connection.meId);
+    this.heads.forget(this.presence.ids);
     this.game.receive(snapshot.game);
     this.feed.receive(snapshot.feed);
   }

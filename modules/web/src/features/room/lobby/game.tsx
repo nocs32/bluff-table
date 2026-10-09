@@ -12,7 +12,7 @@ export const RoomLobbyGame = observer(function RoomLobbyGame(): ReactElement {
   const slider = settings.turnTime;
 
   return (
-    <GameCard tone="red" title={locale.t('lobby.game')} subtitle={locale.t('lobby.gameSubtitle')}>
+    <GameCard title={locale.t('lobby.game')} subtitle={locale.t('lobby.gameSubtitle')}>
       <SettingSlider
         label={slider.label}
         valueText={slider.valueText}

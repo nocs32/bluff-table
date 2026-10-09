@@ -6,13 +6,16 @@ import {
   gameLimits,
   type GamePhase,
   type GameSettings,
+  type Character,
   type GameSettingsPatch,
+  type PlayerColor,
   type TableIntents,
   type TableIntentType,
 } from '@bluff-table/protocol';
 import type { TableLinkListeners } from '../types';
 import { DemoBots } from './bots';
 import { DemoFeed } from './feed';
+import { DemoHeads } from './heads';
 import { demoHandlers, type DemoHandlers } from './intents';
 import { newBot, nextSample } from './rules';
 import type { DemoDeps, DemoMember, DemoTableState } from './types';
@@ -30,6 +33,7 @@ export class DemoReferee implements DemoTableState {
   readonly #out: TableLinkListeners;
   readonly #feed: DemoFeed;
   readonly #bots: DemoBots;
+  readonly #heads: DemoHeads;
   readonly #handlers: DemoHandlers;
 
   constructor(deps: DemoDeps, out: TableLinkListeners) {
@@ -37,6 +41,7 @@ export class DemoReferee implements DemoTableState {
     this.#out = out;
     this.#feed = new DemoFeed(deps);
     this.#bots = new DemoBots(deps, { chat: (id, text) => this.chat(id, text) });
+    this.#heads = new DemoHeads(deps, { members: () => this.members, look: out.look, face: out.face });
     this.#handlers = demoHandlers(this);
   }
 
@@ -55,6 +60,8 @@ export class DemoReferee implements DemoTableState {
 
     if (member.sample) this.#bots.greet(member);
 
+    if (member.sample || member.bot) this.#heads.start(member);
+
     this.#emit();
   }
 
@@ -64,6 +71,7 @@ export class DemoReferee implements DemoTableState {
     if (!member) return;
 
     this.members = this.members.filter((other) => other !== member);
+    this.#heads.stop(member.id);
     this.#feed.system(member, { type: 'left' });
     this.#emit();
   }
@@ -112,9 +120,10 @@ export class DemoReferee implements DemoTableState {
       return;
     }
 
-    const bot = newBot(this.members, this.#deps.createId);
+    const bot = newBot(this.members, this.#deps.createId, this.#deps.random);
 
     this.members.push(bot);
+    this.#heads.start(bot);
     this.#feed.system(author, { type: 'botAdded', name: bot.name });
     this.#emit();
   }
@@ -126,13 +135,36 @@ export class DemoReferee implements DemoTableState {
     if (!author || !bot?.bot) return;
 
     this.members = this.members.filter((other) => other !== bot);
+    this.#heads.stop(bot.id);
     this.#feed.system(author, { type: 'botRemoved', name: bot.name });
     this.#emit();
   }
 
+  // A new look and colour; a colour someone else wears is refused, as at a live table.
+  dress(memberId: string, character: Character, color: PlayerColor): void {
+    const member = this.#member(memberId);
+
+    if (!member) return;
+
+    if (this.members.some((other) => other !== member && other.color === color)) {
+      this.#out.refused({ type: 'dress', code: 'COLOR_TAKEN' });
+      this.#emit();
+
+      return;
+    }
+
+    member.character = character;
+    member.color = color;
+    this.#emit();
+  }
+
+  look(memberId: string, x: number, y: number): void {
+    this.#heads.mine(memberId, x, y);
+  }
+
   // Demo buttons: a sample player sits down or gets up.
   addSample(): void {
-    const sample = nextSample(this.members, this.#deps.createId);
+    const sample = nextSample(this.members, this.#deps.createId, this.#deps.random);
 
     if (sample && (!this.#isFull || this.members.some((member) => member.bot))) this.join(sample);
   }
@@ -145,6 +177,7 @@ export class DemoReferee implements DemoTableState {
 
   dispose(): void {
     this.#bots.cancel();
+    this.#heads.dispose();
   }
 
   // Someone is sitting down at a full table in the lobby: the newest bot gets up for them.

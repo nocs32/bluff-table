@@ -30,10 +30,10 @@ export const keyframes = defineKeyframes({
     '40%': { transform: 'scale(1.3)' },
     '100%': { transform: 'scale(1)' },
   },
-  // A card slides up onto the table.
-  deal: {
-    from: { transform: 'translateY(28px) rotate(-1.5deg)', opacity: '0' },
-    to: { transform: 'translateY(0) rotate(0)', opacity: '1' },
+  // A cut-out folds up off the table, like the pieces of a pop-up stage, and stands straight.
+  standUp: {
+    from: { transform: 'perspective(900px) rotateX(-70deg)', opacity: '0' },
+    to: { transform: 'perspective(900px) rotateX(0)', opacity: '1' },
   },
   fadeIn: {
     from: { opacity: '0' },

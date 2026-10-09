@@ -16,7 +16,7 @@ interface Harness {
   state: { turnSeconds: number };
 }
 
-const ana = { id: 'a', name: 'Ana', color: 'sky' } as const;
+const ana = { id: 'a', name: 'Ana', color: 'blue' } as const;
 
 const createOutbox = (): Harness => {
   const sent: Sent[] = [];

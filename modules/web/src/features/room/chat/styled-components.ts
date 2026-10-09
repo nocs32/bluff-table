@@ -1,7 +1,7 @@
 import { styled } from 'styled-system/jsx';
 
-// The floating chat: a dark panel with a brass hairline and a walnut header, like the room's other
-// panels. Position and size come from CSS variables set by useRoomChatWidget.
+// The floating chat: a ledger on card stock with an ink edge, cut out like the rest, and an ink strip
+// along the top to drag it by. Position and size come from CSS variables set by useRoomChatWidget.
 export const RoomChatWidgetRoot = styled('section', {
   base: {
     position: 'absolute',
@@ -12,11 +12,13 @@ export const RoomChatWidgetRoot = styled('section', {
     flexDirection: 'column',
     width: 'var(--widget-width)',
     height: 'var(--widget-height)',
-    borderRadius: '14px',
+    borderRadius: '6px',
+    border: '2.5px solid',
+    borderColor: 'paper.ink',
     overflow: 'hidden',
-    bg: 'bg.surface',
-    color: 'fg.default',
-    boxShadow: 'dialog',
+    bg: 'print.bg',
+    color: 'print.ink',
+    boxShadow: 'cutout',
     transform: 'translate3d(var(--widget-x), var(--widget-y), 0)',
     animation: 'fadeIn 0.15s ease-out',
     '&:hover [data-widget-resize], &:focus-within [data-widget-resize]': { opacity: '1' },
@@ -25,7 +27,7 @@ export const RoomChatWidgetRoot = styled('section', {
     gesture: {
       idle: {},
       pressed: {},
-      moving: { boxShadow: '0 0 0 1px {colors.brass.base}, 0 28px 60px rgba(0, 0, 0, 0.85)', userSelect: 'none', '& [data-widget-move]': { cursor: 'grabbing' } },
+      moving: { boxShadow: '0 0 0 4px {colors.paper.card}, 0 0 0 5.5px rgba(43, 33, 24, 0.35), 0 28px 60px rgba(0, 0, 0, 0.85)', userSelect: 'none', '& [data-widget-move]': { cursor: 'grabbing' } },
       resizing: { userSelect: 'none', cursor: 'nwse-resize' },
     },
   },
@@ -54,7 +56,7 @@ export const RoomChatWidgetResize = styled('div', {
       height: '9px',
       borderRight: '2px solid',
       borderBottom: '2px solid',
-      borderColor: 'fg.subtle',
+      borderColor: 'print.soft',
       borderBottomRightRadius: '3px',
     },
   },
@@ -62,28 +64,26 @@ export const RoomChatWidgetResize = styled('div', {
 
 // "Too fast: send it again in a moment."
 export const RoomChatComposerNote = styled('p', {
-  base: { marginInline: '12px', marginBottom: '6px', fontSize: '12px', fontWeight: '700', color: 'suit.red' },
+  base: { marginInline: '12px', marginBottom: '6px', fontSize: '12px', fontWeight: '700', color: 'rust.base' },
 });
 
-// The drag handle: a strip of walnut with a brass edge.
+// The drag handle: an ink strip with the title in cream slab capitals.
 export const RoomChatHeader = styled('header', {
   base: {
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'space-between',
     gap: '8px',
-    height: '42px',
+    height: '40px',
     flexShrink: '0',
     paddingLeft: '14px',
     paddingRight: '6px',
-    bg: 'wood.dark',
-    bgImage: 'repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.14) 0 1px, transparent 1px 9px), linear-gradient({colors.wood.base}, {colors.wood.dark})',
-    boxShadow: 'inset 0 -1px 0 {colors.brass.deep}',
-    color: 'print.card',
+    bg: 'paper.ink',
+    color: 'paper.card',
     cursor: 'grab',
     userSelect: 'none',
     touchAction: 'none',
-    '& button': { color: 'chrome.fg', _hover: { bg: 'chrome.hover', color: 'print.card' } },
+    '& button': { color: 'paper.stain', _hover: { bg: 'chrome.hover', color: 'paper.card' } },
   },
 });
 
@@ -93,8 +93,10 @@ export const RoomChatTitle = styled('h2', {
     alignItems: 'center',
     gap: '8px',
     fontFamily: 'display',
-    fontSize: '14px',
-    fontWeight: '800',
+    fontSize: '13px',
+    fontWeight: '900',
+    letterSpacing: '0.1em',
+    textTransform: 'uppercase',
     '& svg': { width: '16px', height: '16px', color: 'brass.light' },
   },
 });
@@ -110,10 +112,10 @@ export const RoomChatComposerRoot = styled('form', {
     marginTop: '4px',
     paddingLeft: '12px',
     paddingRight: '4px',
-    borderRadius: '10px',
-    bg: 'chrome.field',
-    boxShadow: 'inset 0 0 0 1px {colors.border.default}, inset 0 2px 4px rgba(0, 0, 0, 0.35)',
-    _focusWithin: { boxShadow: 'inset 0 0 0 1.5px {colors.accent.default}, inset 0 2px 4px rgba(0, 0, 0, 0.35)' },
+    borderRadius: '4px',
+    bg: 'paper.bright',
+    boxShadow: 'inset 0 0 0 1.5px {colors.paper.ink}',
+    _focusWithin: { boxShadow: 'inset 0 0 0 2px {colors.paper.ink}, 0 0 0 3px {colors.accent.ring}' },
   },
 });
 
@@ -125,7 +127,7 @@ export const RoomChatComposerInput = styled('input', {
     bg: 'transparent',
     fontSize: '15px',
     outline: 'none',
-    _placeholder: { color: 'fg.subtle' },
+    _placeholder: { color: 'print.soft' },
   },
 });
 
@@ -136,8 +138,8 @@ export const RoomChatComposerSend = styled('button', {
     justifyContent: 'center',
     width: '32px',
     height: '30px',
-    borderRadius: '8px',
-    color: 'fg.subtle',
+    borderRadius: '4px',
+    color: 'print.soft',
     cursor: 'pointer',
     transition: 'background-color 0.12s ease, color 0.12s ease',
     _disabled: { cursor: 'default', opacity: '0.5' },
@@ -146,7 +148,7 @@ export const RoomChatComposerSend = styled('button', {
   },
   variants: {
     ready: {
-      true: { bg: 'action.primary', color: 'print.ink', _hover: { bg: 'action.primaryHover' } },
+      true: { bg: 'brass.base', color: 'paper.ink', boxShadow: 'inset 0 0 0 1.5px {colors.paper.ink}', _hover: { bg: 'brass.light' } },
       false: {},
     },
   },

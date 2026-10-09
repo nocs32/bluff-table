@@ -19,6 +19,8 @@ export const tableErrorCodes = [
   'TABLE_FULL',
   // Only bots can be sent away from the table.
   'NOT_A_BOT',
+  // Someone else at the table already wears that colour.
+  'COLOR_TAKEN',
 ] as const;
 
 export type TableErrorCode = (typeof tableErrorCodes)[number];

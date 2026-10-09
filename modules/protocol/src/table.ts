@@ -1,3 +1,4 @@
+import type { Character, Mood } from './characters.js';
 import type { GamePhase, GameSettingKey, GameSettings, GameSwitch } from './game.js';
 import type { PlayerColor } from './players.js';
 
@@ -12,6 +13,8 @@ export interface MemberSnapshot {
   connected: boolean;
   // A bot fills a seat from the lobby and plays by the same rules (spec D9, §6).
   bot: boolean;
+  // How they look (spec D7): random when they sit down, changed in the lobby.
+  character: Character;
 }
 
 export interface GameSnapshot {
@@ -50,6 +53,21 @@ export interface TableSnapshot {
 export interface TableReactionEvent {
   memberId: string;
   emoji: string;
+}
+
+// Where someone's head points (spec §7.1), passed on to everyone else at the table. `x` is the
+// place round the table they look at, from their own seat: 0 straight across, -1 and 1 all the way
+// round to their own place, each way. `y` is up (1, the lamp) or down (-1, their cards).
+export interface TableLookEvent {
+  memberId: string;
+  x: number;
+  y: number;
+}
+
+// The face someone pulls (spec §7.2).
+export interface TableFaceEvent {
+  memberId: string;
+  mood: Mood;
 }
 
 // Feed lines a table keeps (and a browser shows); the oldest go first.

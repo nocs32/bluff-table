@@ -16,6 +16,6 @@ export interface TableRoomViewParts {
 }
 
 export const tableView = ({ members, game }: TableRoomViewParts): TableRoomView => ({
-  members: members.map(({ id, name, color, connected, bot }) => ({ id, name, color, connected, bot })),
+  members: members.map(({ id, name, color, connected, bot, character }) => ({ id, name, color, connected, bot, character })),
   game: { phase: game.phase, settings: game.settings },
 });

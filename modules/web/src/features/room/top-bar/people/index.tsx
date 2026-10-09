@@ -16,7 +16,7 @@ export const RoomTopBarPeople = observer(function RoomTopBarPeople(): ReactEleme
       <RoomTopBarPeopleTrigger aria-label={presence.showLabel} title={presence.countLabel}>
         {presence.stack.map((person) => (
           <RoomTopBarPeopleStackItem key={person.id}>
-            <Avatar initial={person.initial} color={person.color} size="md" ring />
+            <Avatar portrait={person.portrait} color={person.color} size="md" />
           </RoomTopBarPeopleStackItem>
         ))}
         {presence.hasOverflow && <RoomTopBarPeopleMore>+{presence.overflow}</RoomTopBarPeopleMore>}

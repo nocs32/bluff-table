@@ -21,6 +21,6 @@ export const globalCss = defineGlobalStyles({
     color: 'inherit',
   },
   '::selection': {
-    bg: 'rgba(245, 182, 42, 0.4)',
+    bg: 'rgba(201, 160, 82, 0.4)',
   },
 });

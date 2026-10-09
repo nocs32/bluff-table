@@ -15,9 +15,15 @@ export interface TablePoke {
   count: number;
 }
 
-// What the pointer is over on the table: the hanging lamp (poke it and it swings), or a switch's
-// tent card (its tooltip says what the switch does).
-export type TableHover = { kind: 'lamp' } | { kind: 'tent'; name: GameSwitch; hint: string };
+export interface TableInsets {
+  left: number;
+  right: number;
+  bottom: number;
+}
+
+// What the pointer is over on the stage: the hanging lamp (poke it and it swings), a switch's tent
+// card (its tooltip says what the switch does), or a free chair (click it to sit a bot there).
+export type TableHover = { kind: 'lamp' } | { kind: 'chair' } | { kind: 'tent'; name: GameSwitch; hint: string };
 
 const sameTarget = (one: TableHover, other: TableHover): boolean => {
   if (one.kind === 'tent' && other.kind === 'tent') return one.name === other.name;
@@ -30,10 +36,12 @@ const sameTarget = (one: TableHover, other: TableHover): boolean => {
 // side panels cover the table, so the camera frames what's left.
 export class TableStore {
   hovered: TableHover | null = null;
-  // Pixels of the table covered by the lobby's cards on the left and on the right.
-  insetLeft = 0;
-  insetRight = 0;
+  // Pixels of the stage covered by the lobby: its cards on the left and on the right, and Deal the
+  // cards along the bottom.
+  insets: TableInsets = { left: 0, right: 0, bottom: 0 };
   lampPoke: TablePoke = { at: 0, count: 0 };
+  // The typefaces have loaded: lettering drawn into the scene (posters, name tags) is drawn again.
+  fontsReady = false;
   // How far the hanging lamp swings (radians), written every frame by the lamp: its light follows.
   readonly sway = { lamp: 0 };
   readonly #t: Translate;
@@ -48,7 +56,7 @@ export class TableStore {
   }
 
   get cursor(): string {
-    return this.hovered?.kind === 'lamp' ? 'pointer' : 'auto';
+    return this.hovered?.kind === 'lamp' || this.hovered?.kind === 'chair' ? 'pointer' : 'auto';
   }
 
   // The canvas's tooltip: what the thing under the pointer is, or what a click on it does.
@@ -57,7 +65,9 @@ export class TableStore {
 
     if (!hovered) return '';
 
-    return hovered.kind === 'lamp' ? this.#t('table.lampHint') : hovered.hint;
+    if (hovered.kind === 'lamp') return this.#t('table.lampHint');
+
+    return hovered.kind === 'chair' ? this.#t('table.chairHint') : hovered.hint;
   }
 
   get isLampHovered(): boolean {
@@ -79,8 +89,11 @@ export class TableStore {
     this.#sounds.play('creak');
   }
 
-  setInsets(left: number, right: number): void {
-    this.insetLeft = Math.max(0, Math.round(left));
-    this.insetRight = Math.max(0, Math.round(right));
+  markFontsReady(): void {
+    this.fontsReady = true;
+  }
+
+  setInsets({ left, right, bottom }: TableInsets): void {
+    this.insets = { left: Math.max(0, Math.round(left)), right: Math.max(0, Math.round(right)), bottom: Math.max(0, Math.round(bottom)) };
   }
 }

@@ -8,15 +8,15 @@ export const SettingHead = styled('div', {
 });
 
 export const SettingLabel = styled('label', {
-  base: { fontFamily: 'display', fontSize: '14px', fontWeight: '700', '@media (max-height: 540px)': { fontSize: '15px' } },
+  base: { fontFamily: 'display', fontSize: '15px', fontWeight: '800', '@media (max-height: 540px)': { fontSize: '15px' } },
 });
 
 export const SettingValue = styled('span', {
-  base: { fontFamily: 'display', fontSize: '14px', fontWeight: '800', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
+  base: { fontFamily: 'display', fontSize: '15px', fontWeight: '800', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' },
   variants: {
     surface: {
       room: { color: 'accent.text' },
-      print: { color: 'suit.redDeep' },
+      print: { color: 'rust.deep' },
     },
   },
 });
@@ -39,37 +39,43 @@ export const SettingSliderControl = styled(Slider.Control, {
   base: { position: 'relative', display: 'flex', alignItems: 'center', height: '24px' },
 });
 
-// A groove cut into the surface, filled with the four card colours.
+// An inked rule with ticks under it, like a printed scale.
 export const SettingSliderTrack = styled(Slider.Track, {
-  base: { flex: '1', height: '8px', borderRadius: 'full', overflow: 'hidden' },
+  base: {
+    flex: '1',
+    height: '6px',
+    borderRadius: '3px',
+    overflow: 'hidden',
+    border: '1.5px solid',
+  },
   variants: {
     surface: {
-      room: { bg: 'room.night', boxShadow: 'inset 0 1px 2px rgba(0, 0, 0, 0.6), 0 1px 0 rgba(255, 226, 170, 0.08)' },
-      print: { bg: 'rgba(34, 23, 14, 0.12)', boxShadow: 'inset 0 1px 2px rgba(34, 23, 14, 0.25)' },
+      room: { bg: 'night.deep', borderColor: 'border.strong' },
+      print: { bg: 'paper.poster', borderColor: 'paper.ink' },
     },
   },
 });
 
 export const SettingSliderRange = styled(Slider.Range, {
-  base: { height: '100%', bgImage: 'linear-gradient(90deg, {colors.suit.red}, {colors.suit.yellow} 36%, {colors.suit.green} 68%, {colors.suit.blue})' },
+  base: { height: '100%', bg: 'rust.base' },
 });
 
-// The handle: a poker chip.
+// The handle: a revolver's cylinder seen end on, six chambers round the pin.
 export const SettingSliderThumb = styled(Slider.Thumb, {
   base: {
     width: '24px',
     height: '24px',
     borderRadius: 'full',
-    bg: 'print.card',
-    bgImage: 'radial-gradient(circle, {colors.print.card} 0 42%, transparent 42%), repeating-conic-gradient({colors.print.ink} 0 18deg, {colors.print.card} 18deg 45deg)',
+    bg: 'steel.cylinder',
+    bgImage: 'radial-gradient(circle at 50% 50%, {colors.paper.ink} 0 2px, transparent 2.5px), radial-gradient(circle at 50% 22%, {colors.steel.hole} 0 2.6px, transparent 3px), radial-gradient(circle at 74% 36%, {colors.steel.hole} 0 2.6px, transparent 3px), radial-gradient(circle at 74% 64%, {colors.steel.hole} 0 2.6px, transparent 3px), radial-gradient(circle at 50% 78%, {colors.steel.hole} 0 2.6px, transparent 3px), radial-gradient(circle at 26% 64%, {colors.steel.hole} 0 2.6px, transparent 3px), radial-gradient(circle at 26% 36%, {colors.steel.hole} 0 2.6px, transparent 3px)',
     border: '2px solid',
-    borderColor: 'print.ink',
-    boxShadow: '0 2px 0 {colors.print.ink}, 0 4px 8px rgba(0, 0, 0, 0.3)',
+    borderColor: 'paper.ink',
+    boxShadow: '0 0 0 2px {colors.paper.card}, 0 2px 6px rgba(0, 0, 0, 0.35)',
     cursor: 'grab',
-    transition: 'transform 0.1s ease',
+    transition: 'transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1)',
     _hover: { transform: 'scale(1.08)' },
-    _active: { cursor: 'grabbing', transform: 'scale(1.12) rotate(30deg)' },
-    _focusVisible: { outline: '3px solid', outlineColor: 'accent.ring', outlineOffset: '2px' },
+    _active: { cursor: 'grabbing', transform: 'scale(1.12) rotate(60deg)' },
+    _focusVisible: { outline: '3px solid', outlineColor: 'accent.ring', outlineOffset: '3px' },
   },
 });
 
@@ -83,41 +89,39 @@ export const SettingSwitchText = styled('span', {
 
 // Ark's own label part: the switch is already a <label>, and labels can't nest.
 export const SettingSwitchLabel = styled(Switch.Label, {
-  base: { fontFamily: 'display', fontSize: '14px', fontWeight: '700', '@media (max-height: 540px)': { fontSize: '15px' } },
+  base: { fontFamily: 'display', fontSize: '15px', fontWeight: '800' },
 });
 
-// A chunky toggle: felt green when it's on.
+// A toggle inked on the card: a felt-green slot when it's on.
 export const SettingSwitchControl = styled(Switch.Control, {
   base: {
     display: 'inline-flex',
     alignItems: 'center',
     flexShrink: '0',
-    width: '46px',
-    height: '26px',
+    width: '44px',
+    height: '24px',
     padding: '2px',
     borderRadius: 'full',
     border: '2px solid',
     transition: 'background-color 0.15s ease',
-    '&[data-state=checked]': { bg: 'suit.green' },
+    '&[data-state=checked]': { bg: 'felt.light' },
     '&[data-focus-visible]': { outline: '3px solid', outlineColor: 'accent.ring', outlineOffset: '2px' },
   },
   variants: {
     surface: {
-      room: { bg: 'room.night', borderColor: 'border.strong' },
-      print: { bg: 'print.shade', borderColor: 'print.ink' },
+      room: { bg: 'night.deep', borderColor: 'border.strong' },
+      print: { bg: 'paper.poster', borderColor: 'paper.ink' },
     },
   },
 });
 
 export const SettingSwitchThumb = styled(Switch.Thumb, {
   base: {
-    width: '18px',
-    height: '18px',
+    width: '16px',
+    height: '16px',
     borderRadius: 'full',
-    bg: 'print.card',
-    border: '2px solid',
-    borderColor: 'print.ink',
-    transition: 'transform 0.15s cubic-bezier(0.3, 1.4, 0.5, 1)',
-    '&[data-state=checked]': { transform: 'translateX(20px)' },
+    bg: 'paper.ink',
+    transition: 'transform 0.15s cubic-bezier(0.3, 1.4, 0.5, 1), background-color 0.15s ease',
+    '&[data-state=checked]': { transform: 'translateX(20px)', bg: 'paper.card', boxShadow: '0 0 0 1.5px {colors.paper.ink}' },
   },
 });

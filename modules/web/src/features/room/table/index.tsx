@@ -13,10 +13,11 @@ export const RoomTable = observer(function RoomTable(): ReactElement {
   return (
     <RoomTableRoot aria-label={locale.t('table.label')}>
       <Canvas
-        shadows="percentage"
+        shadows="soft"
         dpr={graphics.isLight ? 1 : [1, 2]}
-        camera={{ fov: 34, near: 0.1, far: 40, position: [0, 4, 5] }}
-        gl={{ antialias: true, powerPreference: 'high-performance' }}
+        camera={{ fov: 34, near: 0.1, far: 40, position: [0, 2, 6] }}
+        // In development the last frame is kept, so the stage can be captured from the console.
+        gl={{ antialias: true, powerPreference: 'high-performance', preserveDrawingBuffer: import.meta.env.DEV }}
       >
         <RoomTableScene />
       </Canvas>

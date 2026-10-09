@@ -1,43 +1,41 @@
 import { useThree } from '@react-three/fiber';
 import { useLayoutEffect } from 'react';
-import type { PerspectiveCamera } from 'three';
+import { NeutralToneMapping, type PerspectiveCamera } from 'three';
+import type { TableInsets } from '../../../stores/table';
+import { stage } from './layout';
 
-// How far the table reaches, rail and all, from its middle: the camera keeps all of it in view.
-const reach = { width: 2.15, depth: 1.5 };
-// Looking down at the table at an angle, as if from your chair, with the room behind it (spec §8.1).
-const pitch = 0.6;
-const lookAt = { y: 0.05, z: -0.1 };
-const distanceRange = { min: 3.8, max: 13 };
-// How far the camera backs off from the closest view that fits, so there's room round the table.
-const margin = 0.9;
-
-// What's covering the table: the lobby's cards on the left and right (in pixels).
-export interface RoomTableCameraInsets {
-  left: number;
-  right: number;
-}
+const { camera: view } = stage;
+// How far the scene reaches round the camera's target that must stay in view: the places across
+// the table side to side, and the table's near edge to the lamp up and down.
+const reach = { width: 2.25, height: 1.75 };
+const distanceRange = { min: 4.2, max: 12 };
 
 const clampDistance = (distance: number): number => Math.min(distanceRange.max, Math.max(distanceRange.min, distance));
 
-// The camera never moves on its own (spec D5): it frames the whole table, with room round it, in the
-// part of the screen the lobby's cards leave free, backing off on narrow screens and coming closer on
-// wide ones. When the free part isn't in the middle, the view is shifted so the table is in the
-// middle of what's free.
-export const useRoomTableCamera = ({ left, right }: RoomTableCameraInsets): void => {
-  const { camera, size } = useThree();
+// The camera never moves on its own (spec D5): from your seat it looks across the table, a little
+// down, and frames the places, the table and the lamp in the part of the screen the lobby leaves
+// free, backing off on narrow screens. When the free part isn't in the middle, the view is shifted
+// so the table is in the middle of what's free.
+export const useRoomTableCamera = ({ left, right, bottom }: TableInsets): void => {
+  const { camera, size, gl } = useThree();
+
+  // Neutral tone mapping keeps the drawings' inks and card true under the lamp.
+  useLayoutEffect(() => {
+    gl.toneMapping = NeutralToneMapping;
+    gl.toneMappingExposure = 1.05;
+  }, [gl]);
 
   useLayoutEffect(() => {
     const lens = camera as PerspectiveCamera;
-    const half = Math.tan((lens.fov * Math.PI) / 360);
-    const free = Math.max(160, size.width - left - right);
-    const forWidth = reach.width / (half * (free / size.height)) + margin;
-    const forDepth = (reach.depth / half) * (0.6 + margin * 0.39);
-    const distance = clampDistance(Math.max(forWidth, forDepth));
+    const half = Math.tan((view.fov * Math.PI) / 360);
+    const free = { width: Math.max(160, size.width - left - right), height: Math.max(160, size.height - bottom) };
+    const distance = clampDistance(Math.max(reach.width / (half * (free.width / size.height)), (reach.height / half) * (size.height / free.height)));
 
-    lens.position.set(0, lookAt.y + Math.sin(pitch) * distance, lookAt.z + Math.cos(pitch) * distance);
-    lens.lookAt(0, lookAt.y, lookAt.z);
+    lens.fov = view.fov;
+    lens.position.set(view.target.x, view.target.y + Math.sin(view.pitch) * distance, view.target.z + Math.cos(view.pitch) * distance);
+    lens.lookAt(view.target.x, view.target.y, view.target.z);
     // A shift only: the window onto the view moves, the lens's angle stays the same.
-    lens.setViewOffset(size.width, size.height, -(left - right) / 2, 0, size.width, size.height);
+    lens.setViewOffset(size.width, size.height, -(left - right) / 2, bottom / 2, size.width, size.height);
     lens.updateProjectionMatrix();
-  }, [camera, size.width, size.height, left, right]);
+  }, [camera, size.width, size.height, left, right, bottom]);
 };

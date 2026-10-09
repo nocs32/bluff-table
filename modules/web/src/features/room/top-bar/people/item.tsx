@@ -10,7 +10,7 @@ interface RoomTopBarPeoplePanelItemProps {
 export function RoomTopBarPeoplePanelItem({ member }: RoomTopBarPeoplePanelItemProps): ReactElement {
   return (
     <RoomTopBarPeoplePanelItemRoot>
-      <Avatar initial={member.initial} color={member.color} size="sm" presence={member.status} />
+      <Avatar portrait={member.portrait} color={member.color} size="md" presence={member.status} bot={member.isBot} />
       <RoomTopBarPeoplePanelItemName>{member.name}</RoomTopBarPeoplePanelItemName>
       {member.note && <RoomTopBarPeoplePanelItemNote>{member.note}</RoomTopBarPeoplePanelItemNote>}
     </RoomTopBarPeoplePanelItemRoot>

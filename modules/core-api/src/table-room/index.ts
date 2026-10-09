@@ -32,10 +32,10 @@ type TableRoomHandler<K extends TableIntentType> = (client: TableClient, message
 const { table } = limits;
 
 // Intents that change nothing in the shared view: no view or feed to send afterwards.
-const quietIntents: ReadonlySet<TableIntentType> = new Set(['sync', 'react']);
+const quietIntents: ReadonlySet<TableIntentType> = new Set(['sync', 'react', 'look']);
 
 // Refusals that happen in normal play: a fast hand, a change that crossed the deal.
-const expectedRefusals: ReadonlySet<TableErrorCode> = new Set(['RATE_LIMITED', 'WRONG_PHASE']);
+const expectedRefusals: ReadonlySet<TableErrorCode> = new Set(['RATE_LIMITED', 'WRONG_PHASE', 'COLOR_TAKEN']);
 
 // 12 characters of [0-9a-z]: about 62 bits, so table links can't be guessed.
 const createRoomId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
@@ -146,6 +146,10 @@ export class TableRoom extends Room<{ client: TableClient }> {
     this.#on('rename', (client, { name }) => this.#rename(client, name));
     this.#on('addBot', (client) => this.#bots.add(client.sessionId));
     this.#on('removeBot', (client, { memberId }) => this.#bots.remove(client.sessionId, memberId));
+    this.#on('dress', (client, { character, color }) => this.#members.dress(client.sessionId, character, color));
+    // Heads are passed straight on to everyone else (spec §7.1). Throttling and syncing them under
+    // real lag come with the live game (spec §12, M2).
+    this.#on('look', (client, { x, y }) => this.broadcast('look', { memberId: client.sessionId, x, y }, { except: client }));
   }
 
   // Every handler: validate the message, check the sender's rate, then call the part that owns it,

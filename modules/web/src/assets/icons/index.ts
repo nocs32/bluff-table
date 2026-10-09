@@ -8,6 +8,7 @@ export { default as ChevronLeftIcon } from './chevron-left.svg?react';
 export { default as ChevronRightIcon } from './chevron-right.svg?react';
 export { default as CloseIcon } from './close.svg?react';
 export { default as CopyIcon } from './copy.svg?react';
+export { default as DicesIcon } from './dices.svg?react';
 export { default as FlaskIcon } from './flask.svg?react';
 export { default as LinkIcon } from './link.svg?react';
 export { default as PlusIcon } from './plus.svg?react';

@@ -1,3 +1,4 @@
+import { seatSlots, tableLayout } from '@bluff-table/engine';
 import { gameLimits } from '@bluff-table/protocol';
 import { makeAutoObservable } from 'mobx';
 import type { Translate } from '../locale';
@@ -12,24 +13,15 @@ export interface RoomSeatsDeps {
   isLobby: () => boolean;
 }
 
-// A seat round the table: someone in it, or the free one where a bot can sit.
-export interface SeatView {
-  // The member's id, or 'free'.
-  id: string;
-  player: PlayerView | null;
-  // Where it is round the table, in degrees: 0 is your own place at the near edge, 180 straight
-  // across (spec §9.2: across, then left and right, then the far corners).
+// One of the five places across the table (spec §9.2): someone sitting in it, or a free chair.
+export interface PlaceView {
+  // Where it is round the table, in degrees: 180 is straight across from you.
   angle: number;
+  player: PlayerView | null;
 }
 
-// Your place, and the arc across the table the others share.
-const arc = { from: 70, to: 290 };
-
-const spread = (index: number, count: number): number => arc.from + ((arc.to - arc.from) * (index + 0.5)) / count;
-
 // Who sits where, the bots, and whether there are enough players to start. You always sit at the
-// near edge; the others follow round the table in the order they sat down, and while there's room
-// the next free seat waits among them.
+// near edge; the others follow round the table in the order they sat down (spec §9.2).
 export class RoomSeatsStore {
   readonly #deps: RoomSeatsDeps;
 
@@ -67,17 +59,19 @@ export class RoomSeatsStore {
     return this.#deps.presence.bots;
   }
 
-  get seats(): SeatView[] {
-    const { views } = this.#deps.presence;
-    const mine = views.findIndex((view) => view.isMe);
-    const others = [...views.slice(mine + 1), ...views.slice(0, Math.max(0, mine))];
-    const around: Array<PlayerView | null> = this.isFull ? others : [...others, null];
-    const me = views[mine];
+  // Everyone's place round the table as you see it: you at the near edge, the others across.
+  get layout(): Map<string, number> {
+    const { presence } = this.#deps;
 
-    return [
-      ...(me ? [{ id: me.id, player: me, angle: 0 }] : []),
-      ...around.map((player, index) => ({ id: player?.id ?? 'free', player, angle: spread(index, around.length) })),
-    ];
+    return tableLayout(presence.ids, presence.meId);
+  }
+
+  // The five chairs across the table, and who sits in each.
+  get places(): PlaceView[] {
+    const { layout } = this;
+    const others = this.#deps.presence.views.filter((view) => !view.isMe);
+
+    return seatSlots.map((angle) => ({ angle, player: others.find((view) => layout.get(view.id) === angle) ?? null }));
   }
 
   get countLabel(): string {
