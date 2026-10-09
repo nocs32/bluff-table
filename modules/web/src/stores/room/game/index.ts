@@ -5,6 +5,7 @@ import type { Translate } from '../../locale';
 import type { TableSend } from '../types';
 import { RoomGameCaptionsStore } from './captions';
 import { RoomGameClockStore } from './clock';
+import { RoomGameGunSoundsStore } from './gun-sounds';
 import { RoomGameHandStore } from './hand';
 import { RoomGameMatchStore } from './match';
 import { RoomGameMoodsStore } from './moods';
@@ -59,6 +60,7 @@ export class RoomGameStore {
   readonly captions: RoomGameCaptionsStore;
   readonly secrets: RoomGameSecretsStore;
   readonly summary: RoomGameSummaryStore;
+  readonly #gunSounds: RoomGameGunSoundsStore;
   #listeners: RoomGameListener[] = [];
   #stopFuse: (() => void) | null = null;
   readonly #deps: RoomGameDeps;
@@ -78,6 +80,7 @@ export class RoomGameStore {
     this.secrets = new RoomGameSecretsStore({ t, match: this.match, cardArt });
     this.summary = new RoomGameSummaryStore({ t, send, match: this.match, winsOf: deps.winsOf });
     makeAutoObservable(this, {}, { autoBind: true });
+    this.#gunSounds = new RoomGameGunSoundsStore({ sounds: deps.sounds, match: this.match, pull: this.pull, isOn: () => this.isPlaying && deps.isLive() });
     this.#listenForSounds();
   }
 
@@ -174,6 +177,7 @@ export class RoomGameStore {
     this.captions.receive(events);
     this.moods.receive(events);
     this.#playSounds(events);
+    this.#gunSounds.receive(events);
     this.#listeners.forEach((listener) => listener(events));
   }
 
