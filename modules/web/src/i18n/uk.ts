@@ -1,5 +1,8 @@
 // Ukrainian UI strings: the same keys as en.ts. Plural keys need _one, _few, _many and _other.
 // Lines about people use the present tense, so they don't depend on the person's gender.
+import { ukBook } from './uk-book';
+import { ukRound } from './uk-round';
+
 export const uk = {
   language: {
     code: 'UA',
@@ -43,6 +46,8 @@ export const uk = {
     you: 'ви',
     bot: 'бот',
     reconnecting: 'перепідключається',
+    bounty: '${{amount}}',
+    bountyHint: 'Нагорода за голову: росте на $100 за кожну виграну сьогодні гру',
   },
   lobby: {
     game: 'Гра',
@@ -59,21 +64,63 @@ export const uk = {
     removeBot: 'Прибрати {{name}}',
     full: 'Усі місця зайняті.',
     inviteHint: 'Кожен, хто відкриє посилання, сідає за цей стіл.',
+    deal: 'Роздати карти',
+    dealHint: 'Починає гру для всіх за столом.',
+    dealWaiting: 'Для гри потрібно двоє гравців: запросіть когось або додайте бота.',
+    newHere: 'Вперше тут? Правила за 2 хвилини',
+  },
+  character: {
+    title: 'Ваш персонаж',
+    subtitle: 'Таким вас бачать усі. Потягніть голову, щоб кивнути чи похитати нею.',
+    preview: 'Ви, якими вас бачать інші. Потягніть голову, щоб рухати нею.',
+    hat: 'Капелюх',
+    face: 'Обличчя',
+    hair: 'Волосся',
+    scar: 'Шрам',
+    straw: 'Соломинка',
+    hats: { stetson: 'Стетсон', cowboy: 'Ковбойський', bowler: 'Котелок', fedora: 'Федора', flatcap: 'Кашкет', none: 'Без капелюха' },
+    faces: { clean: 'Гладеньке', stubble: 'Щетина', handlebar: 'Вуса-кермо', walrus: 'Вуса-морж', beard: 'Борода', goatee: 'Цапина борідка' },
+    hairs: { short: 'Коротке', long: 'Довге', bald: 'Лисий' },
+    scars: { none: 'Немає', brow: 'На брові', cheek: 'На щоці' },
+    straws: { no: 'Ні', yes: 'Жує' },
+    color: 'Колір',
+    colorTaken: '{{color}}: його носить {{name}}',
+    roll: 'Випадковий персонаж',
+    previous: '{{part}}: попередній',
+    next: '{{part}}: наступний',
+    you: 'Ви',
+  },
+  colors: {
+    red: 'Червоний',
+    green: 'Зелений',
+    blue: 'Синій',
+    purple: 'Фіолетовий',
+    gold: 'Золотий',
+    teal: 'Бірюзовий',
   },
   switches: {
+    more: 'Як працює «{{name}}» — у правилах',
     whisper: {
       name: 'Шепіт бармена',
       hint: 'Щораунду бармен шепоче одному гравцеві, чесний сьогодні дім чи шахрайський. Шахрайський означає, що той мусить брехати: його брехня безпечна, а правда коштує пострілу.',
     },
     doubleCall: {
-      name: 'Брехун! ×2',
-      hint: 'Раз за гру можна крикнути «Брехун!» подвійно: хто помилився, тисне на гачок двічі.',
+      name: 'Liar! ×2',
+      hint: 'Раз за гру можна крикнути «Liar!» подвійно: хто помилився, тисне на гачок двічі.',
     },
   },
   table: {
     label: 'Картярський стіл салуну',
     lampHint: 'Лампа: натисніть, щоб розгойдати',
-    lampPrompt: 'Поки чекаєте: натисніть на лампу над столом, щоб розгойдати її.',
+    lampPrompt: 'Роззирніться: голова стежить за вказівником, і всі бачать, куди ви дивитеся. Спробуйте й лампу.',
+    chairHint: 'Вільне місце: натисніть, щоб посадити сюди бота',
+    wanted: 'РОЗШУКУЄТЬСЯ',
+    reward: 'Нагорода ${{amount}}',
+    revolverYours: 'Ваш револьвер',
+    revolverOf: 'Револьвер — {{name}}',
+    revolverHint: '{{owner}}: ще {{left}} з {{total}} камор, і в одній із них куля. {{odds}}',
+    revolverOdds: 'Наступне натискання: шанс 1 з {{left}}, що вистрілить.',
+    revolverCertain: 'Наступне натискання вистрілить напевно.',
   },
   chat: {
     slowDown: 'Надто швидко: надішліть ще раз за мить.',
@@ -103,6 +150,9 @@ export const uk = {
     setting: {
       turnSeconds: 'ставить час на хід: {{value}} с',
     },
+    gameStarted: 'роздає карти',
+    died: 'гине в раунді {{round}}',
+    gameWon: 'виграє гру: нагорода тепер ${{bounty}}',
   },
   reactions: {
     label: 'Реакції',
@@ -129,6 +179,8 @@ export const uk = {
     empty: 'Емодзі не знайдено',
     hint: 'Оберіть емодзі, щоб надіслати його',
   },
+  round: ukRound,
+  book: ukBook,
   demo: {
     title: 'Демо',
     hint: 'Гравці-приклади, без сервера',

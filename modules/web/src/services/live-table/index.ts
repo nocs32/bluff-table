@@ -42,7 +42,11 @@ const listenToEvents = (room: Room, listeners: TableLinkListeners, now: () => nu
 
   on('view', (message) => view.view(message));
   on('feed', (message) => view.feed(message));
+  on('secret', (message) => view.secret(message));
+  on('play', ({ events }) => listeners.play(events));
   on('reaction', listeners.reaction);
+  on('look', listeners.look);
+  on('face', listeners.face);
   on('error', listeners.refused);
 };
 

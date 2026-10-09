@@ -8,7 +8,7 @@ export const RoomTopBarPeopleTrigger = styled(Popover.Trigger, {
     height: '32px',
     paddingInline: '6px',
     paddingLeft: '10px',
-    borderRadius: '8px',
+    borderRadius: '5px',
     cursor: 'pointer',
     transition: 'background-color 0.12s ease',
     _hover: { bg: 'chrome.hover' },
@@ -18,7 +18,7 @@ export const RoomTopBarPeopleTrigger = styled(Popover.Trigger, {
 });
 
 export const RoomTopBarPeopleStackItem = styled('span', {
-  base: { display: 'inline-flex', marginLeft: '-6px', '&:nth-child(n+4)': { display: 'none', md: { display: 'inline-flex' } } },
+  base: { display: 'inline-flex', marginLeft: '-3px', '&:nth-child(n+4)': { display: 'none', md: { display: 'inline-flex' } } },
 });
 
 export const RoomTopBarPeopleMore = styled('span', {
@@ -32,10 +32,12 @@ export const RoomTopBarPeoplePanelRoot = styled(Popover.Content, {
     width: '280px',
     maxWidth: 'calc(100vw - 24px)',
     paddingBlock: '8px',
-    borderRadius: '12px',
-    bg: 'bg.surface',
-    color: 'fg.default',
-    boxShadow: 'dialog',
+    borderRadius: '6px',
+    border: '2px solid',
+    borderColor: 'paper.ink',
+    bg: 'print.bg',
+    color: 'print.ink',
+    boxShadow: 'cutout',
     outline: 'none',
     '&[data-state=open]': { animation: 'dialogIn 0.15s ease-out' },
   },
@@ -48,18 +50,18 @@ export const RoomTopBarPeoplePanelMe = styled('label', {
     paddingInline: '14px',
     paddingTop: '6px',
     paddingBottom: '14px',
-    borderBottom: '1px solid',
-    borderColor: 'border.subtle',
+    borderBottom: '2px solid',
+    borderColor: 'paper.ink',
     fontSize: '15px',
   },
 });
 
 export const RoomTopBarPeoplePanelMeLabel = styled('span', {
-  base: { fontSize: '13px', fontWeight: '700', color: 'fg.muted' },
+  base: { fontFamily: 'display', fontSize: '13px', fontWeight: '800', color: 'print.ink' },
 });
 
 export const RoomTopBarPeoplePanelHint = styled('span', {
-  base: { fontSize: '12px', color: 'fg.subtle' },
+  base: { fontSize: '12px', fontStyle: 'italic', color: 'print.muted' },
 });
 
 export const RoomTopBarPeoplePanelTitle = styled(Popover.Title, {
@@ -70,14 +72,15 @@ export const RoomTopBarPeoplePanelTitle = styled(Popover.Title, {
     paddingInline: '14px',
     paddingTop: '12px',
     paddingBottom: '4px',
+    fontFamily: 'display',
     fontSize: '13px',
-    fontWeight: '700',
-    color: 'fg.muted',
+    fontWeight: '800',
+    color: 'print.ink',
   },
 });
 
 export const RoomTopBarPeoplePanelCount = styled('span', {
-  base: { fontWeight: '400', color: 'fg.subtle' },
+  base: { fontWeight: '500', color: 'print.muted' },
 });
 
 export const RoomTopBarPeoplePanelList = styled('ul', {
@@ -88,9 +91,9 @@ export const RoomTopBarPeoplePanelItemRoot = styled('li', {
   base: {
     display: 'flex',
     alignItems: 'center',
-    gap: '10px',
-    height: '32px',
-    paddingInline: '8px',
+    gap: '12px',
+    height: '36px',
+    paddingInline: '10px',
     borderRadius: '6px',
     fontSize: '15px',
   },
@@ -101,7 +104,7 @@ export const RoomTopBarPeoplePanelItemName = styled('span', {
 });
 
 export const RoomTopBarPeoplePanelItemNote = styled('span', {
-  base: { fontSize: '13px', color: 'fg.subtle' },
+  base: { fontSize: '13px', fontStyle: 'italic', color: 'print.muted' },
 });
 
 export const RoomTopBarPeoplePanelInvite = styled('button', {
@@ -115,10 +118,11 @@ export const RoomTopBarPeoplePanelInvite = styled('button', {
     paddingInline: '8px',
     borderRadius: '6px',
     fontSize: '15px',
-    color: 'accent.text',
+    color: 'rust.deep',
+    fontWeight: '700',
     cursor: 'pointer',
-    _hover: { bg: 'bg.hover' },
+    _hover: { bg: 'print.hover' },
     _focusVisible: { outline: '2px solid', outlineColor: 'accent.ring', outlineOffset: '-2px' },
-    '& svg': { width: '20px', height: '20px', padding: '3px', borderRadius: '5px', bg: 'accent.tint' },
+    '& svg': { width: '20px', height: '20px', padding: '2px', borderRadius: '3px', border: '1.5px solid', borderColor: 'rust.deep' },
   },
 });

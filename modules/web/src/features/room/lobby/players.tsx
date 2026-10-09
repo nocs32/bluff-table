@@ -13,7 +13,7 @@ export const RoomLobbyPlayers = observer(function RoomLobbyPlayers(): ReactEleme
   const { presence, seats, share } = room;
 
   return (
-    <GameCard tone="blue" title={t('people.title')} subtitle={seats.countLabel}>
+    <GameCard title={t('people.title')} subtitle={seats.countLabel}>
       <RoomLobbyPlayersList>
         {presence.views.map((player) => (
           <RoomLobbyPlayersItem key={player.id} player={player} />

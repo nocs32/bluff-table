@@ -1,26 +1,33 @@
 import type { ReactElement } from 'react';
-import { furniture } from './palette';
-import { felt, useRailGeometry } from './use-rail';
-import { useFeltTexture } from './use-textures';
+import { DoubleSide } from 'three';
+import { RoomTableCutout } from './cutout';
+import { stage, tableBase, tableTop } from './layout';
+import { useApronTexture, useFloorShadowTexture, useTableLegTexture, useTableTexture } from './use-textures';
 
-// The card table (spec §8.1): green felt with a printed line, a padded leather rail round it, and
-// a wooden apron underneath.
+const { table, floorY } = stage;
+
+// The card table (spec §8.2): the felt in its wooden rim, a card cut-out lying flat under the lamp,
+// on a wooden apron and turned legs down to the floor, with its shadow under it. What lies on it is
+// in middle.tsx and revolvers.tsx.
 export function RoomTableFurniture(): ReactElement {
-  const feltTexture = useFeltTexture();
-  const railGeometry = useRailGeometry();
+  const top = useTableTexture();
+  const apron = useApronTexture();
+  const leg = useTableLegTexture();
+  const shadow = useFloorShadowTexture();
 
   return (
     <group>
-      <mesh rotation-x={-Math.PI / 2} scale={[felt.x + 0.05, felt.z + 0.05, 1]} receiveShadow>
-        <circleGeometry args={[1, 128]} />
-        <meshStandardMaterial map={feltTexture} roughness={0.95} metalness={0} />
+      <RoomTableCutout texture={top} width={tableTop.width} flat />
+      <mesh position-y={-tableBase.apron / 2 - 0.002} scale={[table.rx, 1, table.rz]}>
+        <cylinderGeometry args={[1, 1, tableBase.apron, 128, 1, true]} />
+        <meshStandardMaterial map={apron} emissiveMap={apron} emissive="white" emissiveIntensity={0.8} roughness={0.85} side={DoubleSide} />
       </mesh>
-      <mesh geometry={railGeometry} castShadow receiveShadow>
-        <meshStandardMaterial color={furniture.rail} roughness={0.55} metalness={0.05} />
-      </mesh>
-      <mesh position={[0, -0.16, 0]} scale={[1.93, 1, 1.37]}>
-        <cylinderGeometry args={[1, 0.97, 0.3, 96, 1, true]} />
-        <meshStandardMaterial color={furniture.wood} roughness={0.6} />
+      {tableBase.legs.map(([x, z]) => (
+        <RoomTableCutout key={`${x},${z}`} texture={leg} width={tableBase.legWidth} anchor="bottom" position={[x, floorY, z]} />
+      ))}
+      <mesh rotation-x={-Math.PI / 2} position-y={floorY + 0.005} scale={[table.rx * 1.25, table.rz * 1.25, 1]}>
+        <circleGeometry args={[1, 48]} />
+        <meshBasicMaterial map={shadow} transparent depthWrite={false} />
       </mesh>
     </group>
   );

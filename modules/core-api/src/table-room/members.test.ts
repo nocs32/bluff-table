@@ -25,7 +25,7 @@ test('a dropped member keeps their seat until they leave', () => {
 
   members.join('a', 'Ana');
   members.drop('a');
-  expect(members.all).toEqual([{ id: 'a', name: 'Ana', color: expect.any(String), connected: false, bot: false }]);
+  expect(members.all).toEqual([{ id: 'a', name: 'Ana', color: expect.any(String), connected: false, bot: false, character: expect.any(Object) }]);
   expect(members.isConnected('a')).toBe(false);
   members.reconnect('a');
   expect(members.isConnected('a')).toBe(true);
@@ -56,4 +56,16 @@ test('made-up names avoid the ones already taken', () => {
   const first = pickMemberName(new Set(), always);
 
   expect(pickMemberName(new Set([first]), always)).toBe(`${first} 2`);
+});
+
+test('dresses a member, but never in a colour someone else wears', () => {
+  const members = new TableRoomMembers(() => 0.5);
+  const ana = members.join('a', 'Ana');
+  const bo = members.join('b', 'Bo');
+  const character = { ...ana.character, hat: 'bowler', straw: true } as const;
+
+  members.dress('a', character, ana.color);
+
+  expect(members.get('a').character).toEqual(character);
+  expect(() => members.dress('a', character, bo.color)).toThrow(TableRoomError);
 });

@@ -12,7 +12,7 @@ interface SettingSwitchProps {
   onChange: (checked: boolean) => void;
 }
 
-// An on/off setting: the label and hint, and a chunky toggle that turns felt green.
+// An on/off setting: the label and hint, and a toggle that turns felt green.
 export function SettingSwitch({ label, hint, checked, disabled = false, surface, onChange }: SettingSwitchProps): ReactElement {
   return (
     <SettingSwitchRoot checked={checked} disabled={disabled} onCheckedChange={(details) => onChange(details.checked)}>

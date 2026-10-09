@@ -20,8 +20,8 @@ export const RoomMain = styled('main', {
     position: 'relative',
     minHeight: '0',
     overflow: 'hidden',
-    bg: 'room.night',
-    bgImage: 'radial-gradient(ellipse 46% 52% at 50% 56%, rgba(255, 201, 99, 0.16), transparent 70%), radial-gradient(ellipse 80% 70% at 50% 60%, {colors.room.dusk}, {colors.room.night})',
+    bg: 'night.deep',
+    bgImage: 'radial-gradient(ellipse 46% 52% at 50% 46%, rgba(255, 210, 122, 0.12), transparent 70%), radial-gradient(ellipse 80% 70% at 50% 50%, {colors.night.base}, {colors.night.deep})',
   },
 });
 
@@ -32,13 +32,13 @@ export const RoomStatusRoot = styled('main', {
     placeItems: 'center',
     minHeight: '100dvh',
     padding: '24px',
-    bg: 'room.night',
-    bgImage: 'radial-gradient(ellipse 60% 50% at 50% 45%, rgba(255, 201, 99, 0.14), transparent 70%)',
+    bg: 'night.deep',
+    bgImage: 'radial-gradient(ellipse 60% 50% at 50% 40%, rgba(255, 210, 122, 0.14), transparent 70%), repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.25) 0 3px, transparent 3px 58px)',
     color: 'fg.default',
   },
 });
 
-// A printed card in the lamplight, like the lobby's.
+// A handbill in the lamplight, like the lobby's cards.
 export const RoomStatusCard = styled('section', {
   base: {
     display: 'grid',
@@ -47,12 +47,12 @@ export const RoomStatusCard = styled('section', {
     width: '100%',
     maxWidth: '400px',
     padding: '28px',
-    borderRadius: '18px',
-    border: '2px solid',
-    borderColor: 'print.ink',
-    bg: 'print.card',
+    borderRadius: '6px',
+    border: '2.5px solid',
+    borderColor: 'paper.ink',
+    bg: 'print.bg',
     color: 'print.ink',
-    boxShadow: 'print',
+    boxShadow: 'cutout',
     textAlign: 'center',
     animation: 'dialogIn 0.25s ease-out',
   },
@@ -63,7 +63,7 @@ export const RoomStatusLogo = styled('span', {
 });
 
 export const RoomStatusTitle = styled('h1', {
-  base: { fontFamily: 'display', fontSize: '21px', fontWeight: '800' },
+  base: { fontFamily: 'display', fontSize: '22px', fontWeight: '900', letterSpacing: '0.02em' },
 });
 
 export const RoomStatusText = styled('p', {
@@ -73,7 +73,7 @@ export const RoomStatusText = styled('p', {
 export const RoomStatusSpinner = styled('span', {
   base: {
     display: 'inline-flex',
-    color: 'suit.redDeep',
+    color: 'rust.base',
     '& svg': { width: '22px', height: '22px', animation: 'spin' },
     _motionReduce: { '& svg': { animation: 'none' } },
   },
@@ -129,7 +129,7 @@ export const RoomFlightsSway = styled('div', {
 });
 
 export const RoomFlightsName = styled('span', {
-  base: { marginTop: '4px', paddingInline: '6px', borderRadius: '4px', bg: 'room.night', color: 'fg.default', fontFamily: 'body', fontSize: '11px', fontWeight: '700' },
+  base: { marginTop: '4px', paddingInline: '6px', borderRadius: '3px', border: '1.5px solid', borderColor: 'paper.ink', bg: 'paper.card', color: 'paper.ink', fontFamily: 'body', fontSize: '11px', fontWeight: '700' },
 });
 
 // A phone held upright: the game asks to be turned sideways (spec D29, §9.5). Only CSS decides
@@ -142,21 +142,92 @@ export const RoomRotateRoot = styled('div', {
     display: 'none',
     placeItems: 'center',
     padding: '28px',
-    bg: 'room.night',
-    bgImage: 'radial-gradient(ellipse 70% 50% at 50% 45%, rgba(255, 201, 99, 0.16), transparent 70%)',
+    bg: 'night.deep',
+    bgImage: 'radial-gradient(ellipse 70% 50% at 50% 45%, rgba(255, 210, 122, 0.16), transparent 70%)',
     textAlign: 'center',
     '@media (orientation: portrait) and (pointer: coarse) and (max-width: 600px)': { display: 'grid' },
   },
 });
 
 export const RoomRotateCard = styled('div', {
-  base: { display: 'grid', justifyItems: 'center', gap: '12px', maxWidth: '320px', '& svg': { width: '64px', height: '64px', color: 'lamp.glow' } },
+  base: { display: 'grid', justifyItems: 'center', gap: '12px', maxWidth: '320px', '& svg': { width: '64px', height: '64px', color: 'brass.base' } },
 });
 
 export const RoomRotateTitle = styled('h1', {
-  base: { fontFamily: 'display', fontSize: '22px', fontWeight: '800', color: 'print.card' },
+  base: { fontFamily: 'display', fontSize: '22px', fontWeight: '900', color: 'paper.card' },
 });
 
 export const RoomRotateText = styled('p', {
   base: { fontSize: '15px', color: 'fg.muted', textWrap: 'balance' },
+});
+
+// Your mirror (spec §7.1): an oval of old glass in a wooden frame, cut out of card, with a brass
+// plate under it.
+export const RoomMirrorRoot = styled('div', {
+  base: { display: 'grid', justifyItems: 'center', gap: '6px', flexShrink: '0' },
+  variants: {
+    size: {
+      sm: { '--mirror': '104px', '@media (max-height: 540px)': { '--mirror': '74px' } },
+      md: { '--mirror': '112px' },
+      lg: { '--mirror': '150px', '@media (max-height: 540px)': { '--mirror': '112px' } },
+    },
+  },
+  defaultVariants: { size: 'lg' },
+});
+
+export const RoomMirrorFrame = styled('div', {
+  base: {
+    width: 'var(--mirror)',
+    aspectRatio: '150 / 176',
+    padding: '7px',
+    borderRadius: '50%',
+    bg: 'plank.door',
+    bgImage: 'radial-gradient(ellipse at 30% 20%, rgba(255, 255, 255, 0.18), transparent 55%)',
+    border: '2.5px solid',
+    borderColor: 'paper.ink',
+    boxShadow: 'cutoutSmall',
+  },
+});
+
+// The glass, with you drawn on it. Grab your head here and drag it.
+export const RoomMirrorGlass = styled('canvas', {
+  base: {
+    display: 'block',
+    width: '100%',
+    height: '100%',
+    borderRadius: '50%',
+    border: '2px solid',
+    borderColor: 'paper.ink',
+    bg: 'mirror.glass',
+    bgImage: 'linear-gradient(135deg, rgba(255, 255, 255, 0.16), transparent 30%), radial-gradient(ellipse at 50% 40%, {colors.mirror.glass}, {colors.mirror.deep})',
+    objectFit: 'cover',
+    objectPosition: '50% 30%',
+    cursor: 'grab',
+    touchAction: 'none',
+  },
+  variants: {
+    grabbed: {
+      true: { cursor: 'grabbing' },
+      false: {},
+    },
+  },
+  defaultVariants: { grabbed: false },
+});
+
+export const RoomMirrorPlate = styled('span', {
+  base: {
+    paddingInline: '12px',
+    paddingBlock: '1px',
+    borderRadius: '3px',
+    border: '1.5px solid',
+    borderColor: 'paper.ink',
+    bg: 'brass.base',
+    bgImage: 'linear-gradient(rgba(255, 255, 255, 0.3), transparent 60%)',
+    color: 'paper.ink',
+    fontFamily: 'display',
+    fontSize: '11px',
+    fontWeight: '900',
+    letterSpacing: '0.12em',
+    textTransform: 'uppercase',
+  },
 });

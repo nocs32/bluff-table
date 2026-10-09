@@ -1,6 +1,7 @@
 import { defaultGameSettings, gameLimits, gameSwitches, type GameSettingKey, type GameSettings, type GameSwitch, type GameSwitches } from '@bluff-table/protocol';
 import { makeAutoObservable } from 'mobx';
 import type { Translate } from '../../locale';
+import type { RuleBookSection } from '../../rule-book';
 import type { TableSend } from '../types';
 
 export interface RoomGameSettingsDeps {
@@ -20,7 +21,12 @@ export interface SwitchView {
   label: string;
   hint: string;
   on: boolean;
+  // Its part of the rule book, a click away (spec §9.1).
+  section: RuleBookSection;
+  more: string;
 }
+
+const switchSections: Record<GameSwitch, RuleBookSection> = { whisper: 'whisper', doubleCall: 'double' };
 
 // A number setting as its slider shows it: what it's called, its value, and what it does.
 export interface SettingSliderView {
@@ -65,7 +71,7 @@ export class RoomGameSettingsStore {
   get switchViews(): SwitchView[] {
     const { t } = this.#deps;
 
-    return gameSwitches.map((name) => ({ name, label: t(`switches.${name}.name`), hint: t(`switches.${name}.hint`), on: this.switches[name] }));
+    return gameSwitches.map((name) => ({ name, label: t(`switches.${name}.name`), hint: t(`switches.${name}.hint`), on: this.switches[name], section: switchSections[name], more: t('switches.more', { name: t(`switches.${name}.name`) }) }));
   }
 
   // The switches that are on, as the table's tent cards show them.

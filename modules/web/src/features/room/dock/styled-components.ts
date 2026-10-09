@@ -2,8 +2,8 @@ import { Popover } from '@ark-ui/react/popover';
 import { EmojiPicker } from 'frimousse';
 import { styled } from 'styled-system/jsx';
 
-// The card table's padded leather rail along the bottom: a brass edge, a stitched seam, the
-// reactions as a row of poker chips, then the chat.
+// The saloon's floorboards along the bottom: an ink edge and a brass rule, the reactions as a row of
+// little cards cut out like the scene's, then the chat.
 export const RoomDockRoot = styled('footer', {
   base: {
     position: 'relative',
@@ -16,11 +16,9 @@ export const RoomDockRoot = styled('footer', {
     '@media (max-height: 540px)': { minHeight: '50px', gap: '10px' },
     paddingInline: '10px',
     paddingBottom: 'env(safe-area-inset-bottom)',
-    bg: 'leather.base',
-    bgImage: 'linear-gradient(90deg, transparent, rgba(255, 226, 170, 0.04) 50%, transparent), linear-gradient({colors.leather.light}, {colors.leather.base} 30%, {colors.leather.dark})',
-    boxShadow: 'inset 0 2px 0 {colors.brass.light}, inset 0 3px 0 {colors.brass.deep}, 0 -6px 18px rgba(0, 0, 0, 0.5)',
-    // The stitched seam just under the brass.
-    _before: { content: '""', position: 'absolute', top: '8px', insetInline: '0', height: '1px', bgImage: 'repeating-linear-gradient(90deg, rgba(221, 189, 120, 0.45) 0 7px, transparent 7px 12px)' },
+    bg: 'chrome.bar',
+    bgImage: 'repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.3) 0 2px, transparent 2px 20px), linear-gradient({colors.night.smoke}, {colors.night.base})',
+    boxShadow: 'inset 0 2px 0 {colors.paper.ink}, inset 0 3px 0 {colors.brass.deep}, 0 -6px 18px rgba(0, 0, 0, 0.5)',
   },
   variants: {
     // On a phone held sideways height is scarce: the rail stands up along the left edge instead.
@@ -37,12 +35,11 @@ export const RoomDockRoot = styled('footer', {
         paddingInline: '0',
         paddingBlock: '8px',
         paddingLeft: 'env(safe-area-inset-left)',
-        bgImage: 'linear-gradient({colors.leather.light}, {colors.leather.base} 30%, {colors.leather.dark})',
-        boxShadow: 'inset -2px 0 0 {colors.brass.light}, inset -3px 0 0 {colors.brass.deep}, 6px 0 18px rgba(0, 0, 0, 0.5)',
+        bgImage: 'repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0 2px, transparent 2px 20px), linear-gradient(90deg, {colors.night.smoke}, {colors.night.base})',
+        boxShadow: 'inset -2px 0 0 {colors.paper.ink}, inset -3px 0 0 {colors.brass.deep}, 6px 0 18px rgba(0, 0, 0, 0.5)',
         overflowY: 'auto',
         scrollbarWidth: 'none',
         '@media (max-height: 540px)': { minHeight: '0', gap: '8px' },
-        _before: { top: '0', bottom: '0', insetInline: 'auto', right: '8px', width: '1px', height: 'auto', bgImage: 'repeating-linear-gradient(rgba(221, 189, 120, 0.45) 0 7px, transparent 7px 12px)' },
       },
       false: {},
     },
@@ -51,18 +48,18 @@ export const RoomDockRoot = styled('footer', {
 });
 
 export const RoomDockChips = styled('div', {
-  base: { display: 'flex', alignItems: 'center', gap: '6px' },
+  base: { display: 'flex', alignItems: 'center', gap: '10px' },
   variants: {
     // Standing up, the rail has room for four quick emoji.
     rail: {
-      true: { flexDirection: 'column', gap: '6px', '& > button:nth-child(n+5):not(:last-child)': { display: 'none' } },
+      true: { flexDirection: 'column', gap: '10px', '& > button:nth-child(n+5):not(:last-child)': { display: 'none' } },
       false: {},
     },
   },
   defaultVariants: { rail: false },
 });
 
-// A count of what came in while the chat was closed: a small red chip.
+// A count of what came in while the chat was closed: a small red stamp.
 export const RoomDockBadge = styled('span', {
   base: {
     position: 'absolute',
@@ -73,14 +70,14 @@ export const RoomDockBadge = styled('span', {
     minWidth: '22px',
     height: '22px',
     paddingInline: '5px',
-    borderRadius: 'full',
-    bg: 'suit.red',
-    border: '2px solid',
-    borderColor: 'print.ink',
-    color: 'print.card',
+    borderRadius: '4px',
+    bg: 'rust.base',
+    border: '1.5px solid',
+    borderColor: 'paper.ink',
+    color: 'paper.card',
     fontFamily: 'display',
     fontSize: '11px',
-    fontWeight: '800',
+    fontWeight: '900',
     animation: 'pop 0.35s ease-out',
   },
 });
@@ -94,54 +91,47 @@ export const RoomDockChatButton = styled('span', {
   base: { position: 'relative', display: 'inline-flex' },
 });
 
-// Each quick reaction is a poker chip with the emoji on its cream centre. Chips take turns at the
-// design's five chip colours.
+// Each quick reaction is a little card cut out of card stock, the emoji printed on it.
 export const RoomDockEmoji = styled('button', {
   base: {
-    '--chip': '{colors.suit.red}',
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: '42px',
-    height: '42px',
-    borderRadius: 'full',
-    bg: 'var(--chip)',
-    bgImage: 'radial-gradient(circle, {colors.print.card} 0 52%, var(--chip) 52% 57%, transparent 57%), repeating-conic-gradient(from 12deg, rgba(255, 248, 232, 0.92) 0 22deg, var(--chip) 22deg 60deg)',
-    boxShadow: '0 3px 0 rgba(0, 0, 0, 0.55), 0 5px 10px rgba(0, 0, 0, 0.35)',
+    width: '38px',
+    height: '38px',
+    borderRadius: '5px',
+    border: '1.5px solid',
+    borderColor: 'paper.ink',
+    bg: 'paper.card',
+    boxShadow: 'cutoutSmall',
     fontFamily: 'emoji',
     fontSize: '19px',
     lineHeight: '1',
     cursor: 'pointer',
     userSelect: 'none',
     touchAction: 'manipulation',
-    transition: 'transform 0.12s ease, box-shadow 0.12s ease',
-    _hover: { transform: 'translateY(-3px)', boxShadow: '0 6px 0 rgba(0, 0, 0, 0.55), 0 9px 14px rgba(0, 0, 0, 0.4)' },
-    _active: { transform: 'translateY(2px)', boxShadow: '0 1px 0 rgba(0, 0, 0, 0.55)' },
-    _focusVisible: { outline: '3px solid', outlineColor: 'accent.ring', outlineOffset: '2px' },
-    '&:nth-child(5n+2)': { '--chip': '{colors.suit.blue}' },
-    '&:nth-child(5n+3)': { '--chip': '{colors.suit.green}' },
-    '&:nth-child(5n+4)': { '--chip': '{colors.suit.yellowDeep}' },
-    '&:nth-child(5n+5)': { '--chip': '{colors.suit.wild}' },
-    // Phones show four quick emoji, on smaller chips.
+    transition: 'transform 0.12s ease',
+    _hover: { transform: 'translateY(-3px)' },
+    _active: { transform: 'translateY(1px)' },
+    _focusVisible: { outline: '3px solid', outlineColor: 'accent.ring', outlineOffset: '4px' },
+    // Phones show four quick emoji, on smaller cards.
     '&:nth-child(n+5)': { display: 'none', sm: { display: 'inline-flex' } },
-    '@media (max-height: 540px)': { width: '36px', height: '36px', fontSize: '16px' },
+    '@media (max-height: 540px)': { width: '34px', height: '34px', fontSize: '16px' },
   },
 });
 
-// More emoji: an empty slot in the chip rack.
+// More emoji: an empty, dashed spot where a card would go.
 export const RoomDockButton = styled('button', {
   base: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     flexShrink: '0',
-    width: '42px',
-    height: '42px',
-    borderRadius: 'full',
+    width: '38px',
+    height: '38px',
+    borderRadius: '5px',
     border: '2px dashed',
     borderColor: 'border.strong',
-    bg: 'rgba(0, 0, 0, 0.25)',
-    boxShadow: 'inset 0 2px 4px rgba(0, 0, 0, 0.5)',
     color: 'chrome.fg',
     cursor: 'pointer',
     transition: 'color 0.12s ease, border-color 0.12s ease',
@@ -149,17 +139,19 @@ export const RoomDockButton = styled('button', {
     _focusVisible: { outline: '3px solid', outlineColor: 'accent.ring', outlineOffset: '2px' },
     '&[aria-pressed=true], &[data-state=open]': { color: 'accent.text', borderColor: 'accent.default', borderStyle: 'solid' },
     '& svg': { width: '20px', height: '20px' },
-    '@media (max-height: 540px)': { width: '36px', height: '36px' },
+    '@media (max-height: 540px)': { width: '34px', height: '34px' },
   },
 });
 
 export const RoomDockPopover = styled(Popover.Content, {
   base: {
     zIndex: '40',
-    borderRadius: '14px',
-    bg: 'bg.surface',
-    color: 'fg.default',
-    boxShadow: 'dialog',
+    borderRadius: '6px',
+    border: '2px solid',
+    borderColor: 'paper.ink',
+    bg: 'print.bg',
+    color: 'print.ink',
+    boxShadow: 'cutout',
     outline: 'none',
     '&[data-state=open]': { animation: 'dialogIn 0.15s ease-out' },
   },
@@ -183,13 +175,13 @@ export const RoomDockPickerSearch = styled(EmojiPicker.Search, {
     margin: '10px',
     marginBottom: '6px',
     paddingInline: '10px',
-    borderRadius: '8px',
-    bg: 'bg.subtle',
-    boxShadow: 'inset 0 0 0 1px {colors.border.default}',
+    borderRadius: '4px',
+    bg: 'paper.bright',
+    boxShadow: 'inset 0 0 0 1.5px {colors.paper.ink}',
     fontSize: '14px',
     outline: 'none',
-    _placeholder: { color: 'fg.subtle' },
-    _focus: { boxShadow: 'inset 0 0 0 1px {colors.accent.ring}' },
+    _placeholder: { color: 'print.soft' },
+    _focus: { boxShadow: 'inset 0 0 0 2px {colors.paper.ink}, 0 0 0 3px {colors.accent.ring}' },
   },
 });
 
@@ -206,10 +198,11 @@ export const RoomDockPickerViewport = styled(EmojiPicker.Viewport, {
       paddingInline: '12px',
       paddingTop: '8px',
       paddingBottom: '4px',
-      bg: 'bg.surface',
-      color: 'fg.muted',
+      bg: 'print.bg',
+      color: 'print.muted',
+      fontFamily: 'display',
       fontSize: '12px',
-      fontWeight: '700',
+      fontWeight: '800',
     },
     '& [frimousse-row]': { paddingInline: '8px' },
     '& [frimousse-emoji]': {
@@ -222,17 +215,17 @@ export const RoomDockPickerViewport = styled(EmojiPicker.Viewport, {
       fontFamily: 'emoji',
       fontSize: '22px',
       cursor: 'pointer',
-      '&[data-active]': { bg: 'bg.hover' },
+      '&[data-active]': { bg: 'print.hover' },
     },
   },
 });
 
 export const RoomDockPickerLoading = styled(EmojiPicker.Loading, {
-  base: { position: 'absolute', inset: '0', display: 'grid', placeItems: 'center', fontSize: '13px', color: 'fg.muted' },
+  base: { position: 'absolute', inset: '0', display: 'grid', placeItems: 'center', fontSize: '13px', color: 'print.muted' },
 });
 
 export const RoomDockPickerEmpty = styled(EmojiPicker.Empty, {
-  base: { position: 'absolute', inset: '0', display: 'grid', placeItems: 'center', fontSize: '13px', color: 'fg.muted' },
+  base: { position: 'absolute', inset: '0', display: 'grid', placeItems: 'center', fontSize: '13px', color: 'print.muted' },
 });
 
 export const RoomDockPickerFooter = styled('div', {
@@ -243,10 +236,10 @@ export const RoomDockPickerFooter = styled('div', {
     flexShrink: '0',
     height: '44px',
     paddingInline: '12px',
-    borderTop: '1px solid',
-    borderColor: 'border.subtle',
+    borderTop: '2px solid',
+    borderColor: 'paper.ink',
     fontSize: '13px',
-    color: 'fg.muted',
+    color: 'print.muted',
     whiteSpace: 'nowrap',
     overflow: 'hidden',
     textOverflow: 'ellipsis',

@@ -1,129 +1,121 @@
 import { Popover } from '@ark-ui/react/popover';
 import { styled } from 'styled-system/jsx';
 
-// Everyone's initial on a poker chip in their colour: a cream rim with edge spots, and the chip's
-// thickness under it.
+// Someone's face, drawn like the scene's busts, in a round card frame with a ring in their colour.
 export const AvatarRoot = styled('span', {
   base: {
-    '--chip': '{colors.player.indigo}',
+    '--ring': '{colors.player.red}',
     position: 'relative',
     display: 'inline-flex',
-    alignItems: 'center',
-    justifyContent: 'center',
     flexShrink: '0',
     borderRadius: 'full',
-    bg: 'var(--chip)',
-    bgImage: 'radial-gradient(circle, var(--chip) 0 53%, rgba(255, 248, 232, 0.92) 53% 58%, transparent 58%), repeating-conic-gradient(from 12deg, rgba(255, 248, 232, 0.94) 0 22deg, var(--chip) 22deg 60deg)',
-    color: 'print.card',
-    fontFamily: 'display',
-    fontWeight: '800',
-    lineHeight: '1',
-    textShadow: '0 1px 1px rgba(0, 0, 0, 0.35)',
-    boxShadow: 'chip',
+    bg: 'paper.poster',
+    fontSize: '28px',
+    boxShadow: '0 0 0 1.5px {colors.paper.ink}, 0 0 0 3.5px var(--ring), 0 0 0 5px {colors.paper.ink}',
     userSelect: 'none',
   },
   variants: {
     tone: {
-      raspberry: { '--chip': '{colors.player.raspberry}' },
-      sky: { '--chip': '{colors.player.sky}' },
-      green: { '--chip': '{colors.player.green}' },
-      mustard: { '--chip': '{colors.player.mustard}' },
-      violet: { '--chip': '{colors.player.violet}' },
-      orange: { '--chip': '{colors.player.orange}' },
-      teal: { '--chip': '{colors.player.teal}' },
-      pink: { '--chip': '{colors.player.pink}' },
-      lime: { '--chip': '{colors.player.lime}' },
-      indigo: { '--chip': '{colors.player.indigo}' },
+      red: { '--ring': '{colors.player.red}' },
+      green: { '--ring': '{colors.player.green}' },
+      blue: { '--ring': '{colors.player.blue}' },
+      purple: { '--ring': '{colors.player.purple}' },
+      gold: { '--ring': '{colors.player.gold}' },
+      teal: { '--ring': '{colors.player.teal}' },
     },
     size: {
-      sm: { width: '20px', height: '20px', fontSize: '9px', boxShadow: '0 1px 0 rgba(0, 0, 0, 0.4)' },
-      md: { width: '28px', height: '28px', fontSize: '12px' },
-      lg: { width: '36px', height: '36px', fontSize: '15px' },
-    },
-    ring: {
-      true: { boxShadow: '0 0 0 2px {colors.room.night}, 0 2px 0 2px rgba(0, 0, 0, 0.4)' },
-      false: {},
+      sm: { width: '20px', height: '20px', boxShadow: '0 0 0 1px {colors.paper.ink}, 0 0 0 2.5px var(--ring), 0 0 0 3.5px {colors.paper.ink}' },
+      md: { width: '28px', height: '28px' },
+      lg: { width: '38px', height: '38px' },
     },
   },
-  defaultVariants: { tone: 'indigo', size: 'md', ring: false },
+  defaultVariants: { tone: 'red', size: 'md' },
+});
+
+export const AvatarFace = styled('img', {
+  base: { width: '100%', height: '100%', borderRadius: 'full', objectFit: 'cover', pointerEvents: 'none' },
+});
+
+export const AvatarInitial = styled('span', {
+  base: { display: 'grid', placeItems: 'center', width: '100%', fontFamily: 'display', fontSize: '0.5em', fontWeight: '900', color: 'paper.ink' },
 });
 
 export const AvatarPresence = styled('span', {
   base: {
     position: 'absolute',
-    right: '-3px',
-    bottom: '-3px',
+    right: '-4px',
+    bottom: '-4px',
     width: '10px',
     height: '10px',
     borderRadius: 'full',
     border: '2px solid',
-    borderColor: 'room.night',
+    borderColor: 'paper.ink',
   },
   variants: {
     status: {
       online: { bg: 'presence.online' },
-      reconnecting: { bg: 'room.haze', boxShadow: 'inset 0 0 0 1.5px {colors.fg.subtle}' },
+      reconnecting: { bg: 'night.haze', boxShadow: 'inset 0 0 0 1.5px {colors.fg.subtle}' },
     },
   },
 });
 
-// A bot's 🤖, pinned to the chip's edge.
+// A bot's 🤖, pinned to the frame's edge.
 export const AvatarBot = styled('span', {
-  base: { position: 'absolute', right: '-5px', top: '-5px', fontFamily: 'emoji', fontSize: '11px', lineHeight: '1', filter: 'drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5))' },
+  base: { position: 'absolute', right: '-7px', top: '-7px', fontFamily: 'emoji', fontSize: '12px', lineHeight: '1', filter: 'drop-shadow(0 1px 1px rgba(0, 0, 0, 0.5))' },
 });
 
-// An arcade button: a chunky outline, the button's thickness in ink under it, and a glossy top. It
-// lifts as you point at it and presses down as you click.
+// A printed button cut out of card: an ink edge, a cream cut-out border, slab lettering. The main
+// one is a brass plate; the dangerous one a red stamp.
 export const Button = styled('button', {
   base: {
     display: 'inline-flex',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '8px',
-    height: '40px',
-    paddingInline: '18px',
-    borderRadius: '12px',
+    height: '38px',
+    paddingInline: '16px',
+    borderRadius: '5px',
     border: '2px solid',
-    borderColor: 'print.ink',
+    borderColor: 'paper.ink',
     fontFamily: 'display',
     fontSize: '15px',
     fontWeight: '800',
-    letterSpacing: '0.01em',
+    letterSpacing: '0.02em',
     whiteSpace: 'nowrap',
     cursor: 'pointer',
-    transition: 'background-color 0.12s ease, transform 0.1s ease, box-shadow 0.1s ease',
-    boxShadow: 'inset 0 2px 0 rgba(255, 255, 255, 0.45), 0 4px 0 {colors.print.ink}',
-    _focusVisible: { outline: '3px solid', outlineColor: 'accent.ring', outlineOffset: '3px' },
+    boxShadow: 'cutoutSmall',
+    transition: 'background-color 0.12s ease, transform 0.1s ease, filter 0.12s ease',
+    _focusVisible: { outline: '3px solid', outlineColor: 'accent.ring', outlineOffset: '5px' },
     _disabled: { opacity: '0.5', cursor: 'not-allowed' },
     '& svg': { width: '17px', height: '17px', strokeWidth: '2.5', flexShrink: '0' },
-    '&:hover:not(:disabled)': { transform: 'translateY(-1px)', boxShadow: 'inset 0 2px 0 rgba(255, 255, 255, 0.45), 0 5px 0 {colors.print.ink}' },
-    '&:active:not(:disabled)': { transform: 'translateY(3px)', boxShadow: 'inset 0 2px 0 rgba(255, 255, 255, 0.3), 0 1px 0 {colors.print.ink}' },
+    '&:hover:not(:disabled)': { transform: 'translateY(-1px)' },
+    '&:active:not(:disabled)': { transform: 'translateY(1px)' },
   },
   variants: {
     tone: {
-      primary: { bg: 'action.primary', color: 'print.ink', _hover: { bg: 'action.primaryHover' } },
-      secondary: { bg: 'print.card', color: 'print.ink', _hover: { bg: 'white' } },
+      primary: { bg: 'brass.base', color: 'paper.ink', bgImage: 'linear-gradient(rgba(255, 255, 255, 0.28), transparent 55%)', _hover: { bg: 'brass.light' } },
+      secondary: { bg: 'paper.card', color: 'paper.ink', _hover: { bg: 'paper.bright' } },
       ghost: {
         borderColor: 'transparent',
         bg: 'transparent',
         color: 'inherit',
         boxShadow: 'none',
         _hover: { bg: 'bg.hover' },
-        '&:hover:not(:disabled)': { transform: 'none', boxShadow: 'none' },
-        '&:active:not(:disabled)': { transform: 'none', boxShadow: 'none' },
+        '&:hover:not(:disabled)': { transform: 'none' },
+        '&:active:not(:disabled)': { transform: 'none' },
       },
-      danger: { bg: 'suit.red', color: 'print.card' },
+      danger: { bg: 'rust.base', color: 'paper.card', textTransform: 'uppercase', letterSpacing: '0.06em', _hover: { bg: 'rust.hot' } },
     },
     size: {
       md: {},
-      sm: { height: '32px', paddingInline: '12px', fontSize: '13px', borderRadius: '10px', '& svg': { width: '15px', height: '15px' } },
-      lg: { height: '54px', paddingInline: '28px', fontSize: '20px', borderRadius: '16px', borderWidth: '3px', '& svg': { width: '22px', height: '22px' } },
+      sm: { height: '30px', paddingInline: '11px', fontSize: '13px', borderWidth: '1.5px', '& svg': { width: '15px', height: '15px' } },
+      lg: { height: '52px', paddingInline: '28px', fontSize: '20px', borderWidth: '2.5px', '& svg': { width: '22px', height: '22px' } },
     },
   },
   defaultVariants: { tone: 'secondary', size: 'md' },
 });
 
-// A small icon button, on the room's wood or on printed card stock.
+// A small icon button, on the room's planks or on card stock.
 export const IconButton = styled('button', {
   base: {
     display: 'inline-flex',
@@ -132,7 +124,7 @@ export const IconButton = styled('button', {
     flexShrink: '0',
     width: '30px',
     height: '30px',
-    borderRadius: '8px',
+    borderRadius: '5px',
     color: 'chrome.fg',
     cursor: 'pointer',
     transition: 'background-color 0.12s ease, color 0.12s ease',
@@ -145,24 +137,25 @@ export const IconButton = styled('button', {
   variants: {
     surface: {
       room: {},
-      print: { color: 'print.muted', _hover: { bg: 'rgba(34, 23, 14, 0.08)', color: 'print.ink' } },
+      print: { color: 'print.muted', _hover: { bg: 'print.hover', color: 'print.ink' } },
     },
   },
   defaultVariants: { surface: 'room' },
 });
 
-// The room's popovers: a dark panel with a brass hairline.
+// Popovers are notes on card stock, cut out like everything else.
 export const PanelContent = styled(Popover.Content, {
   base: {
     zIndex: '40',
     display: 'grid',
     width: '288px',
     maxWidth: 'calc(100vw - 24px)',
-    borderRadius: '14px',
-    bg: 'bg.surface',
-    bgImage: 'linear-gradient(rgba(255, 226, 170, 0.04), transparent 40%)',
-    color: 'fg.default',
-    boxShadow: 'dialog',
+    borderRadius: '6px',
+    border: '2px solid',
+    borderColor: 'paper.ink',
+    bg: 'print.bg',
+    color: 'print.ink',
+    boxShadow: 'cutout',
     outline: 'none',
     '&[data-state=open]': { animation: 'dialogIn 0.15s ease-out' },
   },
@@ -180,15 +173,15 @@ export const ConfirmPopoverText = styled('div', {
 });
 
 export const ConfirmPopoverTitle = styled('p', {
-  base: { fontFamily: 'display', fontSize: '15px', fontWeight: '800' },
+  base: { fontFamily: 'display', fontSize: '16px', fontWeight: '800' },
 });
 
 export const ConfirmPopoverNote = styled('p', {
-  base: { fontSize: '13px', color: 'fg.muted' },
+  base: { fontSize: '13px', color: 'print.muted' },
 });
 
 export const ConfirmPopoverButtons = styled('div', {
-  base: { display: 'flex', justifyContent: 'flex-end', gap: '8px' },
+  base: { display: 'flex', justifyContent: 'flex-end', gap: '10px' },
 });
 
 // Auto-sizing inline input: the ::after copy of the text sets the width, the input sits on top.
@@ -208,13 +201,14 @@ export const NameInputSizer = styled('span', {
   defaultVariants: { tone: 'heading' },
 });
 
+// A name on card stock you can write over: an ink underline until you click it.
 export const NameInputField = styled('input', {
   base: {
     gridArea: '1 / 1',
     width: '100%',
     minWidth: '0',
     paddingInline: '6px',
-    borderRadius: '8px',
+    borderRadius: '4px',
     bg: 'transparent',
     color: 'inherit',
     font: 'inherit',
@@ -222,9 +216,9 @@ export const NameInputField = styled('input', {
     textOverflow: 'ellipsis',
     outline: 'none',
     transition: 'background-color 0.12s ease, box-shadow 0.12s ease',
-    _placeholder: { color: 'fg.subtle' },
-    _hover: { bg: 'bg.hover' },
-    _focus: { bg: 'chrome.field', boxShadow: 'inset 0 0 0 1.5px {colors.accent.default}', textOverflow: 'clip' },
+    _placeholder: { color: 'print.soft' },
+    _hover: { bg: 'print.hover' },
+    _focus: { bg: 'paper.bright', boxShadow: 'inset 0 0 0 1.5px {colors.paper.ink}', textOverflow: 'clip' },
   },
   variants: {
     tone: {
@@ -232,95 +226,70 @@ export const NameInputField = styled('input', {
       field: {
         height: '36px',
         paddingInline: '10px',
-        bg: 'chrome.field',
-        boxShadow: 'inset 0 0 0 1px {colors.border.default}, inset 0 2px 4px rgba(0, 0, 0, 0.35)',
-        _hover: { bg: 'chrome.field', boxShadow: 'inset 0 0 0 1px {colors.border.strong}, inset 0 2px 4px rgba(0, 0, 0, 0.35)' },
+        bg: 'paper.bright',
+        boxShadow: 'inset 0 0 0 1.5px {colors.paper.ink}',
+        _hover: { bg: 'paper.bright' },
       },
     },
   },
   defaultVariants: { tone: 'heading' },
 });
 
-// A lobby panel as a big game card: cream card stock, an ink edge, and a printed header.
+// A lobby panel as a handbill: card stock with an ink edge and a cream cut-out border.
 export const GameCardRoot = styled('section', {
   base: {
-    '--suit': '{colors.suit.red}',
-    '--suit-deep': '{colors.suit.redDeep}',
     display: 'flex',
     flexDirection: 'column',
     flexShrink: '0',
-    padding: '7px',
-    borderRadius: '18px',
-    border: '2px solid',
-    borderColor: 'print.ink',
-    bg: 'print.card',
+    borderRadius: '6px',
+    border: '2.5px solid',
+    borderColor: 'paper.ink',
+    bg: 'print.bg',
+    bgImage: 'radial-gradient(ellipse at 50% 0%, rgba(255, 255, 255, 0.35), transparent 60%), radial-gradient(ellipse at 50% 120%, rgba(201, 180, 138, 0.35), transparent 70%)',
     color: 'print.ink',
-    boxShadow: 'print',
-    animation: 'deal 0.45s cubic-bezier(0.2, 0.8, 0.3, 1.1) backwards',
+    boxShadow: 'cutout',
+    animation: 'standUp 0.5s cubic-bezier(0.2, 0.8, 0.3, 1.1) backwards',
+    transformOrigin: 'bottom center',
     _motionReduce: { animation: 'none' },
   },
-  variants: {
-    tone: {
-      red: { '--suit': '{colors.suit.red}', '--suit-deep': '{colors.suit.redDeep}' },
-      yellow: { '--suit': '{colors.suit.yellow}', '--suit-deep': '{colors.suit.yellowDeep}' },
-      green: { '--suit': '{colors.suit.green}', '--suit-deep': '{colors.suit.greenDeep}' },
-      blue: { '--suit': '{colors.suit.blue}', '--suit-deep': '{colors.suit.blueDeep}' },
-    },
-  },
 });
 
-// The printed header: the colour with a halftone fading in towards the corner, and a gloss.
+// The handbill's head: the title in slab capitals over a thick and a thin rule.
 export const GameCardHeadRoot = styled('header', {
   base: {
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    gap: '12px',
+    display: 'grid',
+    justifyItems: 'center',
+    gap: '3px',
     flexShrink: '0',
-    minHeight: '58px',
-    '@media (max-height: 540px)': { minHeight: '46px', paddingBlock: '6px', gap: '9px', '& h2': { fontSize: '17px' } },
-    paddingBlock: '9px',
-    paddingInline: '12px',
-    borderRadius: '12px',
-    border: '2px solid',
-    borderColor: 'print.ink',
-    bg: 'var(--suit)',
-    overflow: 'hidden',
-    _before: {
-      content: '""',
-      position: 'absolute',
-      inset: '0',
-      bgImage: 'radial-gradient(circle, var(--suit-deep) 0 1.7px, transparent 2.2px)',
-      bgSize: '8px 8px',
-      maskImage: 'linear-gradient(110deg, transparent 35%, black 100%)',
-    },
-    _after: { content: '""', position: 'absolute', inset: '0', bgImage: 'linear-gradient(160deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0.05) 42%, transparent 43%)' },
+    marginInline: '12px',
+    paddingTop: '12px',
+    paddingBottom: '9px',
+    borderBottom: '3px solid',
+    borderColor: 'paper.ink',
+    textAlign: 'center',
+    boxShadow: '0 3px 0 {colors.paper.card}, 0 4.5px 0 {colors.paper.ink}',
+    '@media (max-height: 540px)': { paddingTop: '8px', paddingBottom: '6px' },
   },
 });
 
-export const GameCardTitles = styled('div', {
-  base: { position: 'relative', zIndex: '1', display: 'grid', minWidth: '0' },
-});
-
-// Lettered like the cards' numbers: cream, an ink outline and a hard shadow.
 export const GameCardTitle = styled('h2', {
   base: {
     fontFamily: 'display',
-    fontSize: '21px',
-    fontWeight: '800',
-    lineHeight: '1.15',
-    letterSpacing: '0.01em',
-    color: 'print.card',
-    WebkitTextStroke: '5px {colors.print.ink}',
-    paintOrder: 'stroke fill',
-    textShadow: '3px 3px 0 var(--suit-deep)',
+    fontSize: '19px',
+    fontWeight: '900',
+    lineHeight: '1.1',
+    letterSpacing: '0.08em',
+    textTransform: 'uppercase',
+    '@media (max-height: 540px)': { fontSize: '16px' },
+    _before: { content: '"★ "', color: 'rust.base', fontSize: '0.7em', verticalAlign: '0.15em' },
+    _after: { content: '" ★"', color: 'rust.base', fontSize: '0.7em', verticalAlign: '0.15em' },
   },
 });
 
 export const GameCardSubtitle = styled('p', {
-  base: { fontSize: '12.5px', fontWeight: '600', lineHeight: '1.3', color: 'print.card', textShadow: '0 1px 1px rgba(0, 0, 0, 0.45)' },
+  base: { maxWidth: '34ch', fontSize: '12.5px', fontStyle: 'italic', lineHeight: '1.35', color: 'print.muted', textWrap: 'balance' },
 });
 
 export const GameCardBody = styled('div', {
-  base: { display: 'grid', alignContent: 'start', gap: '16px', minHeight: '0', overflowY: 'auto', paddingInline: '9px', paddingTop: '14px', paddingBottom: '8px' },
+  base: { display: 'grid', alignContent: 'start', gap: '16px', minHeight: '0', overflowY: 'auto', paddingInline: '14px', paddingTop: '16px', paddingBottom: '14px' },
 });

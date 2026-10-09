@@ -1,29 +1,9 @@
 import { useMemo } from 'react';
-import { felt } from './use-rail';
 
-const width = 0.5;
-const height = 0.25;
-// How far each side leans back from upright.
-const lean = 0.34;
+// How far either side of the deck the tent cards stand.
+const aside = 0.74;
 
-// A tent card's two sides meeting at the top, like a folded place card.
-export const tentShape = {
-  width,
-  height,
-  front: { position: [0, (height / 2) * Math.cos(lean), (height / 2) * Math.sin(lean)] as [number, number, number], tilt: -lean },
-  back: { position: [0, (height / 2) * Math.cos(lean), -(height / 2) * Math.sin(lean)] as [number, number, number], tilt: lean },
-};
-
-export interface TentSpot {
-  position: [number, number, number];
-  yaw: number;
-}
-
-// The tent cards stand in a row along the far edge of the felt, facing you, where everyone can see
-// them.
-export const useRoomTableTentSpot = (index: number, count: number): TentSpot =>
-  useMemo((): TentSpot => {
-    const x = (index - (count - 1) / 2) * (width + 0.06);
-
-    return { position: [x, 0, -felt.z * 0.66 + Math.abs(x) * 0.16], yaw: -x * 0.22 };
-  }, [index, count]);
+// The tent cards stand in the middle of the felt, either side of the deck, facing you: clear of the
+// name tags and the revolvers round the edge. The first goes on the left.
+export const useRoomTableTentSpot = (index: number, count: number): [number, number, number] =>
+  useMemo((): [number, number, number] => [count === 1 ? -aside : (index * 2 - 1) * aside, 0, 0.05], [index, count]);

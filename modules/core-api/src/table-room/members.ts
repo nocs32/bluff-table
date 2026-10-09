@@ -1,5 +1,5 @@
-import { pickBotName } from '@bluff-table/engine';
-import { cleanPersonName, playerColors, type PlayerColor } from '@bluff-table/protocol';
+import { pickBotName, rollCharacter } from '@bluff-table/engine';
+import { cleanPersonName, playerColors, type Character, type PlayerColor } from '@bluff-table/protocol';
 import { TableRoomError } from './error.js';
 import { pickMemberName } from './member-names.js';
 
@@ -7,9 +7,11 @@ import { pickMemberName } from './member-names.js';
 export interface TableRoomMember {
   readonly id: string;
   name: string;
-  readonly color: PlayerColor;
+  color: PlayerColor;
   connected: boolean;
   readonly bot: boolean;
+  // How they look (spec D7): a random character to start with.
+  character: Character;
 }
 
 // Who is at the table, in the order they sat down. Each person is connected ⇄ reconnecting (a
@@ -66,7 +68,7 @@ export class TableRoomMembers {
     if (this.#members.has(id)) throw new TableRoomError('ALREADY_A_MEMBER');
 
     const name = cleanPersonName(requestedName ?? '') || pickMemberName(new Set(this.all.map((member) => member.name)), this.#random);
-    const member: TableRoomMember = { id, name, color: this.#freeColor(), connected: true, bot: false };
+    const member: TableRoomMember = { id, name, color: this.#freeColor(), connected: true, bot: false, character: rollCharacter(this.#random) };
 
     this.#members.set(id, member);
 
@@ -75,7 +77,8 @@ export class TableRoomMembers {
 
   // A bot gets the first bot name nobody has.
   seatBot(id: string): TableRoomMember {
-    const member: TableRoomMember = { id, name: pickBotName(new Set(this.all.map((other) => other.name))), color: this.#freeColor(), connected: true, bot: true };
+    const name = pickBotName(new Set(this.all.map((other) => other.name)));
+    const member: TableRoomMember = { id, name, color: this.#freeColor(), connected: true, bot: true, character: rollCharacter(this.#random) };
 
     this.#members.set(id, member);
 
@@ -110,6 +113,16 @@ export class TableRoomMembers {
     member.name = name;
 
     return name;
+  }
+
+  // A new look and colour (spec D7). A colour someone else wears is refused, and nothing changes.
+  dress(id: string, character: Character, color: PlayerColor): void {
+    const member = this.get(id);
+
+    if (this.all.some((other) => other.id !== id && other.color === color)) throw new TableRoomError('COLOR_TAKEN');
+
+    member.character = character;
+    member.color = color;
   }
 
   // The least used colour (unused while there are fewer people than colours), random among ties.

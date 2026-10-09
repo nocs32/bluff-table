@@ -1,23 +1,25 @@
 import type { ReactElement } from 'react';
 import type { PlayerColor, PresenceStatus } from '../stores/room/types';
-import { AvatarBot, AvatarPresence, AvatarRoot } from './styled-components';
+import { AvatarBot, AvatarFace, AvatarInitial, AvatarPresence, AvatarRoot } from './styled-components';
 
 interface AvatarProps {
-  initial: string;
+  // Their face, drawn by code (an image URL); without one, their initial.
+  portrait: string | null;
+  initial?: string;
   color: PlayerColor;
   size: 'sm' | 'md' | 'lg';
   label?: string;
   presence?: PresenceStatus;
-  ring?: boolean;
   // Bots wear a 🤖 (spec §6).
   bot?: boolean;
 }
 
-// A poker chip in the player's colour with their initial, an optional presence dot, and a 🤖 for bots.
-export function Avatar({ initial, color, size, label, presence, ring = false, bot = false }: AvatarProps): ReactElement {
+// Someone's face as their character looks, framed in their colour, with an optional presence dot
+// and a 🤖 for bots.
+export function Avatar({ portrait, initial = '', color, size, label, presence, bot = false }: AvatarProps): ReactElement {
   return (
-    <AvatarRoot tone={color} size={size} ring={ring} role="img" aria-label={label} title={label}>
-      {initial}
+    <AvatarRoot tone={color} size={size} role="img" aria-label={label} title={label}>
+      {portrait ? <AvatarFace src={portrait} alt="" /> : <AvatarInitial>{initial}</AvatarInitial>}
       {presence && <AvatarPresence status={presence} />}
       {bot && <AvatarBot aria-hidden>🤖</AvatarBot>}
     </AvatarRoot>

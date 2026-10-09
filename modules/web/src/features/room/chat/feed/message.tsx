@@ -18,7 +18,7 @@ export function RoomChatFeedMessage({ entry }: RoomChatFeedMessageProps): ReactE
   return (
     <RoomChatFeedMessageRoot startsGroup={entry.startsGroup}>
       <RoomChatFeedGutter>
-        {entry.startsGroup && <Avatar initial={entry.authorInitial} color={entry.authorColor} size="lg" />}
+        {entry.startsGroup && <Avatar portrait={entry.authorPortrait} initial={entry.authorInitial} color={entry.authorColor} size="md" />}
       </RoomChatFeedGutter>
       <div>
         {entry.startsGroup && (

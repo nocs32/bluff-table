@@ -1,4 +1,3 @@
-import { token } from 'styled-system/tokens';
 import { Color } from 'three';
 import { paint } from '../../../art/palette';
 
@@ -6,15 +5,11 @@ import { paint } from '../../../art/palette';
 const glowing = (colour: string, strength: number): Color => new Color(colour).multiplyScalar(strength);
 
 export const glow = {
-  bulb: glowing(paint.lamp, 4),
+  flame: glowing(paint.flame, 5),
 };
 
-// The furniture's own colours.
+// The stage's own colours, for what isn't drawn on a canvas.
 export const furniture = {
-  rail: new Color(token('colors.leather.base')),
-  wood: new Color(paint.woodDark),
-  floor: new Color(token('colors.room.dusk')),
-  cardEdge: new Color(paint.card),
-  brass: new Color(paint.brass),
   ink: new Color(paint.ink),
+  night: new Color(paint.night),
 };

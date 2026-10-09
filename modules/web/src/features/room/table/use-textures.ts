@@ -1,33 +1,160 @@
+import type { CardRank, Character, PlayerColor } from '@bluff-table/protocol';
 import { useEffect, useMemo } from 'react';
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
-import { drawFelt, drawPanelling, drawTentCard } from '../../../art';
+import {
+  drawApron,
+  drawBackBar,
+  drawChair,
+  drawCounter,
+  drawCylinder,
+  drawDeck,
+  drawDoorLeaf,
+  drawDoorway,
+  drawFloor,
+  drawFloorShadow,
+  drawLamp,
+  drawNameTag,
+  drawPolishing,
+  drawPoster,
+  drawShot,
+  drawTableCard,
+  drawTableCardStand,
+  drawWhisperMark,
+  drawRevolver,
+  drawTableLeg,
+  drawTableTop,
+  drawTentCard,
+  drawWall,
+  playerPaint,
+  renderFigure,
+} from '../../../art';
 
-// The table's textures, drawn by code (spec §8.6) once and handed to the GPU. Each is thrown away
-// when what it shows changes (a new language, say) or its owner goes.
+// The stage's textures, drawn by code (spec §8.6) once and handed to the GPU. Each is thrown away
+// when what it shows changes (a new name, a new language) or its owner goes. Lettering waits for
+// the typefaces: `fonts` turns true once they've loaded, and the textures with text redraw.
 
-const toTexture = (canvas: HTMLCanvasElement, repeat = 1): CanvasTexture => {
+// Pixels per unit of the sketches for the people: sharp on a big screen, light on a phone.
+export const figureScale = 2.6;
+
+export const toTexture = (canvas: HTMLCanvasElement, repeat?: { x: number; y: number }): CanvasTexture => {
   const texture = new CanvasTexture(canvas);
 
   texture.colorSpace = SRGBColorSpace;
   texture.anisotropy = 8;
 
-  if (repeat !== 1) {
+  if (repeat) {
     texture.wrapS = RepeatWrapping;
     texture.wrapT = RepeatWrapping;
-    texture.repeat.set(repeat, repeat / 4);
+    texture.repeat.set(repeat.x, repeat.y);
   }
 
   return texture;
 };
 
-const useDisposal = <T extends CanvasTexture | null>(texture: T): T => {
-  useEffect(() => () => texture?.dispose(), [texture]);
+const useDisposal = (texture: CanvasTexture): CanvasTexture => {
+  useEffect(() => () => texture.dispose(), [texture]);
 
   return texture;
 };
 
-export const useFeltTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawFelt()), []));
+// A soft round glow round the lamp's flame, added onto whatever's behind it.
+const drawHalo = (): HTMLCanvasElement => {
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d');
 
-export const usePanellingTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawPanelling(), 8), []));
+  canvas.width = 256;
+  canvas.height = 256;
 
-export const useTentTexture = (name: string): CanvasTexture => useDisposal(useMemo(() => toTexture(drawTentCard(name)), [name]));
+  if (!ctx) return canvas;
+
+  const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128);
+
+  gradient.addColorStop(0, 'rgba(255, 210, 122, 0.3)');
+  gradient.addColorStop(0.25, 'rgba(255, 190, 100, 0.1)');
+  gradient.addColorStop(1, 'rgba(255, 170, 80, 0)');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, 256, 256);
+
+  return canvas;
+};
+
+export const useHaloTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawHalo()), []));
+
+export const useWallTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawWall()), []));
+
+export const useFloorTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawFloor(), { x: 10, y: 6 }), []));
+
+export const useBackBarTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawBackBar()), []));
+
+export const useCounterTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawCounter()), []));
+
+export const usePolishingTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawPolishing()), []));
+
+export const useDoorwayTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawDoorway()), []));
+
+export const useDoorLeafTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawDoorLeaf()), []));
+
+export const useLampTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawLamp()), []));
+
+export const useTableTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawTableTop()), []));
+
+export const useTableLegTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawTableLeg()), []));
+
+export const useFloorShadowTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawFloorShadow()), []));
+
+// The table's side wraps all the way round, so its drawing repeats round the oval.
+export const useApronTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawApron(), { x: 3, y: 1 }), []));
+
+export const useChairTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawChair()), []));
+
+export const useRevolverTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawRevolver()), []));
+
+// A cylinder with `left` chambers still to pull: drawn again after every pull.
+export const useCylinderTexture = (left: number): CanvasTexture => useDisposal(useMemo(() => toTexture(drawCylinder(left)), [left]));
+
+const cardTextures = new Map<string, CanvasTexture>();
+
+// A card on the table: face down (null), or face up, with a red edge if it was a lie. There are
+// only a few pictures, shared by every card and kept for good; `fonts` redraws their letters once
+// the typefaces are in.
+export const useCardTexture = (rank: CardRank | null, lie: boolean, fonts: boolean): CanvasTexture =>
+  useMemo(() => {
+    const key = `${rank}|${lie}|${fonts}`;
+    const known = cardTextures.get(key);
+
+    if (known) return known;
+
+    const texture = toTexture(drawTableCard(rank, lie));
+
+    cardTextures.set(key, texture);
+
+    return texture;
+  }, [rank, lie, fonts]);
+
+export const useTableCardStandTexture = (rank: CardRank, fonts: boolean): CanvasTexture => useDisposal(useMemo(() => toTexture(drawTableCardStand(rank)), [rank, fonts]));
+
+export const useWhisperMarkTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawWhisperMark()), []));
+
+export const useShotTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawShot()), []));
+
+export const useDeckTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawDeck()), []));
+
+export const useTentTexture = (name: string, fonts: boolean): CanvasTexture => useDisposal(useMemo(() => toTexture(drawTentCard(name)), [name, fonts]));
+
+export const useNameTagTexture = (name: string, color: PlayerColor, left: number, fonts: boolean): CanvasTexture =>
+  useDisposal(useMemo(() => toTexture(drawNameTag(name, playerPaint[color], left)), [name, color, left, fonts]));
+
+export interface PosterContent {
+  character: Character;
+  color: PlayerColor;
+  wanted: string;
+  name: string;
+  reward: string;
+}
+
+export const usePosterTexture = ({ character, color, wanted, name, reward }: PosterContent, fonts: boolean): CanvasTexture =>
+  useDisposal(useMemo(() => toTexture(drawPoster({ character, color }, { wanted, name, reward })), [character, color, wanted, name, reward, fonts]));
+
+// A person's body, or a ghost's: it changes only with their character.
+export const useBodyTexture = (character: Character, color: PlayerColor, apron = false, ghost = false): CanvasTexture =>
+  useDisposal(useMemo(() => toTexture(renderFigure({ character, color, part: 'body', apron, ghost }, figureScale)), [character, color, apron, ghost]));

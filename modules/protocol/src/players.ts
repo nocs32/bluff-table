@@ -1,5 +1,7 @@
-// The player palette. The server gives each newcomer a colour nobody at the table has yet.
-export const playerColors = ['raspberry', 'sky', 'green', 'mustard', 'violet', 'orange', 'teal', 'pink', 'lime', 'indigo'] as const;
+// The player palette, one colour per seat (spec D9): saloon dyes, worn on the hat or its band
+// (spec §8.3). The server gives each newcomer a colour nobody at the table has yet, and anyone can
+// pick another free one in the lobby.
+export const playerColors = ['red', 'green', 'blue', 'purple', 'gold', 'teal'] as const;
 
 export type PlayerColor = (typeof playerColors)[number];
 

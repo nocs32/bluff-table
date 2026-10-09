@@ -76,3 +76,21 @@ test('a reload keeps the seat: the table holds it and sends everything again', a
   expect(back.room.sessionId).toBe(bo.room.sessionId);
   await until(() => latest(ana, 'view')?.members.every((member) => member.connected) === true);
 });
+
+test('a look goes to everyone else; a new look and colour reach everyone, a worn colour is refused', async () => {
+  const [ana, bo] = (await sitDown(2)) as [Seat, Seat];
+
+  ana.room.send('look', { x: 0.25, y: -0.5 });
+  await until(() => all(bo, 'look').length === 1);
+  expect(latest(bo, 'look')).toEqual({ memberId: ana.room.sessionId, x: 0.25, y: -0.5 });
+  expect(all(ana, 'look')).toEqual([]);
+
+  const [mine, theirs] = latest(ana, 'view')?.members ?? [];
+  const character = { ...mine!.character, hat: 'cowboy', straw: true } as const;
+
+  ana.room.send('dress', { character, color: mine!.color });
+  await until(() => latest(bo, 'view')?.members[0]?.character.hat === 'cowboy');
+
+  ana.room.send('dress', { character, color: theirs!.color });
+  await until(() => latest(ana, 'error')?.code === 'COLOR_TAKEN');
+});

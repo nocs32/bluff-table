@@ -1,9 +1,11 @@
 import * as v from 'valibot';
-import { personNameMaxLength } from './players.js';
+import { characterSchema, wheelMoods } from './characters.js';
+import { gameLimits } from './game.js';
+import { personNameMaxLength, playerColors } from './players.js';
 
 // Bumped whenever an intent or an event changes shape. A web app on another version is turned
 // away with PROTOCOL_MISMATCH and asked to reload.
-export const tableProtocolVersion = 1;
+export const tableProtocolVersion = 3;
 
 // The Colyseus room type the web app creates and joins.
 export const tableRoomName = 'table';
@@ -43,6 +45,9 @@ const memberId = v.pipe(v.string(), v.maxLength(64));
 
 const empty = v.strictObject({});
 
+// A head's direction, each way from -1 to 1 (spec §7.1).
+const unit = v.pipe(v.number(), v.minValue(-1), v.maxValue(1));
+
 // Sent with create and join. `name` is the name this browser picked before (null: the table makes one up).
 export const tableJoinOptionsSchema = v.strictObject({
   protocolVersion: v.pipe(v.number(), v.integer()),
@@ -63,6 +68,24 @@ export const tableIntentSchemas = {
   // Anyone in the lobby may sit a bot in a free seat, or send one away (spec §4.2).
   addBot: empty,
   removeBot: v.strictObject({ memberId }),
+  // A new look for your character, and your colour, in the lobby (spec D7). A colour someone else
+  // wears is refused.
+  dress: v.strictObject({ character: characterSchema, color: v.picklist(playerColors) }),
+  // Where your head points now (spec §7.1): up to 15 times a second, only when it moved.
+  look: v.strictObject({ x: unit, y: unit }),
+  // A face from the wheel round your mirror (spec §7.2), ghosts too.
+  face: v.strictObject({ mood: v.picklist(wheelMoods) }),
+  // Deal the cards: anyone, from the lobby, with two seats filled (spec §4.2).
+  start: empty,
+  // Your turn: 1 to 3 of your cards face down, by their ids (spec §5.4).
+  play: v.strictObject({ cardIds: v.pipe(v.array(v.pipe(v.string(), v.maxLength(8))), v.minLength(1), v.maxLength(gameLimits.playMax)) }),
+  // Liar! on the previous play; `double` is Liar! ×2 (spec §5.9).
+  call: v.strictObject({ double: v.boolean() }),
+  // Pull the trigger, when it's your gun (spec §5.6).
+  pull: empty,
+  // After a game: deal the next one with everyone at the table, or go back to the lobby.
+  playAgain: empty,
+  toLobby: empty,
 };
 
 export type TableIntentType = keyof typeof tableIntentSchemas;

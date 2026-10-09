@@ -16,7 +16,7 @@ interface Harness {
   state: { turnSeconds: number };
 }
 
-const ana = { id: 'a', name: 'Ana', color: 'sky' } as const;
+const ana = { id: 'a', name: 'Ana', color: 'blue' } as const;
 
 const createOutbox = (): Harness => {
   const sent: Sent[] = [];
@@ -26,7 +26,7 @@ const createOutbox = (): Harness => {
 
   const outbox = new TableRoomOutbox({
     feed,
-    view: () => ({ members: [], game: { phase: 'lobby', settings: { ...defaultGameSettings, turnSeconds: state.turnSeconds } } }) satisfies TableRoomView,
+    view: () => ({ members: [], game: { phase: 'lobby', settings: { ...defaultGameSettings, turnSeconds: state.turnSeconds }, match: null } }) satisfies TableRoomView,
     now: () => 0,
     send: (to, type) => sent.push({ to, type }),
     broadcast: (type) => sent.push({ to: '*', type }),

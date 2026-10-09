@@ -1,3 +1,4 @@
+import '@fontsource-variable/roboto-slab';
 import '@fontsource-variable/rubik';
 import './index.css';
 import './stores/configure-mobx';
@@ -23,6 +24,8 @@ if (import.meta.env.DEV) {
 
 syncDocumentLanguage(store.locale);
 watchLayout(store.ui.layout);
+// Lettering drawn into the scene waits for the typefaces, then is drawn again.
+void Promise.all([document.fonts.load('800 32px "Roboto Slab Variable"'), document.fonts.load('600 16px "Rubik Variable"')]).then(store.table.markFontsReady);
 store.room.open();
 
 createRoot(rootElement).render(

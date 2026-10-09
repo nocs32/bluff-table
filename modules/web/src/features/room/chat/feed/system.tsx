@@ -12,7 +12,7 @@ export function RoomChatFeedSystem({ entry }: RoomChatFeedSystemProps): ReactEle
   return (
     <RoomChatFeedSystemRoot>
       <RoomChatFeedGutter>
-        <Avatar initial={entry.authorInitial} color={entry.authorColor} size="sm" />
+        <Avatar portrait={entry.authorPortrait} initial={entry.authorInitial} color={entry.authorColor} size="sm" />
       </RoomChatFeedGutter>
       <span>
         <RoomChatFeedSystemName>{entry.authorName}</RoomChatFeedSystemName> {entry.text}

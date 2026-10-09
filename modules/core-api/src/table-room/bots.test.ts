@@ -8,7 +8,7 @@ test('anyone may sit a bot down; it gets a bot name and a feed line', () => {
   const table = createTestTable(2);
   const bot = table.bots.add('p1');
 
-  expect(bot).toEqual({ id: 'bot-1', name: 'Dusty', color: expect.any(String), connected: true, bot: true });
+  expect(bot).toEqual({ id: 'bot-1', name: 'Dusty', color: expect.any(String), connected: true, bot: true, character: expect.any(Object) });
   expect(table.members.count).toBe(3);
   expect(table.members.people).toBe(2);
   expect(events(table)).toEqual([{ type: 'botAdded', name: 'Dusty' }]);

@@ -1,6 +1,9 @@
 // English UI strings. Every key here needs a Ukrainian one in uk.ts (index.ts checks).
 // Plural keys use i18next suffixes (_one, _other); pass `count` to pick the form.
 // Never Liar's Bar's name, characters or mode names (spec D2). The call is "Liar!" (D21).
+import { enBook } from './en-book';
+import { enRound } from './en-round';
+
 export const en = {
   language: {
     code: 'EN',
@@ -44,6 +47,8 @@ export const en = {
     you: 'you',
     bot: 'bot',
     reconnecting: 'reconnecting',
+    bounty: '${{amount}}',
+    bountyHint: 'Their bounty: it goes up by $100 for every game they win tonight',
   },
   lobby: {
     game: 'The game',
@@ -58,8 +63,42 @@ export const en = {
     removeBot: 'Send {{name}} away',
     full: 'Every seat is taken.',
     inviteHint: 'Everyone who opens the link sits down at this table.',
+    deal: 'Deal the cards',
+    dealHint: 'Starts a game for everyone at the table.',
+    dealWaiting: 'A game needs two players: invite someone, or add a bot.',
+    newHere: 'New to this? The rules in 2 minutes',
+  },
+  character: {
+    title: 'Your character',
+    subtitle: 'How everyone sees you. Drag the head to nod or shake it.',
+    preview: 'You, as the others see you. Drag the head to move it.',
+    hat: 'Hat',
+    face: 'Face',
+    hair: 'Hair',
+    scar: 'Scar',
+    straw: 'Straw',
+    hats: { stetson: 'Stetson', cowboy: 'Cowboy', bowler: 'Bowler', fedora: 'Fedora', flatcap: 'Flat cap', none: 'None' },
+    faces: { clean: 'Clean', stubble: 'Stubble', handlebar: 'Handlebar', walrus: 'Walrus', beard: 'Full beard', goatee: 'Goatee' },
+    hairs: { short: 'Short', long: 'Long', bald: 'Bald' },
+    scars: { none: 'None', brow: 'Brow', cheek: 'Cheek' },
+    straws: { no: 'No', yes: 'Chewing one' },
+    color: 'Colour',
+    colorTaken: '{{color}}: {{name}} wears it',
+    roll: 'Roll a random one',
+    previous: '{{part}}: the one before',
+    next: '{{part}}: the next one',
+    you: 'You',
+  },
+  colors: {
+    red: 'Red',
+    green: 'Green',
+    blue: 'Blue',
+    purple: 'Purple',
+    gold: 'Gold',
+    teal: 'Teal',
   },
   switches: {
+    more: 'How {{name}} works, in the rules',
     whisper: {
       name: 'The barkeep’s whisper',
       hint: 'Each round the barkeep tells one player whether the house is straight or crooked. Crooked means they must lie: their lies are safe, and the truth gets them shot.',
@@ -72,7 +111,15 @@ export const en = {
   table: {
     label: 'The saloon’s card table',
     lampHint: 'The lamp: click to give it a swing',
-    lampPrompt: 'While you wait: click the lamp over the table to give it a swing.',
+    lampPrompt: 'Look around: your head follows your pointer, and everyone sees where you look. Try the lamp, too.',
+    chairHint: 'A free seat: click to sit a bot here',
+    wanted: 'WANTED',
+    reward: 'Reward ${{amount}}',
+    revolverYours: 'Your revolver',
+    revolverOf: '{{name}}’s revolver',
+    revolverHint: '{{owner}}: {{left}} of {{total}} chambers still to pull, and one of them holds the bullet. {{odds}}',
+    revolverOdds: 'Next pull: a 1 in {{left}} chance it fires.',
+    revolverCertain: 'The next pull fires for sure.',
   },
   chat: {
     slowDown: 'Too fast: send it again in a moment.',
@@ -100,6 +147,9 @@ export const en = {
     setting: {
       turnSeconds: 'set the time per turn to {{value}} s',
     },
+    gameStarted: 'dealt the cards',
+    died: 'died in round {{round}}',
+    gameWon: 'won the game: bounty now ${{bounty}}',
   },
   reactions: {
     label: 'Reactions',
@@ -126,6 +176,8 @@ export const en = {
     empty: 'No emoji found',
     hint: 'Pick an emoji to send it',
   },
+  round: enRound,
+  book: enBook,
   demo: {
     title: 'Demo',
     hint: 'Sample players, no server',

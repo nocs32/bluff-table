@@ -1,4 +1,4 @@
-import type { TableErrorEvent, TableIntents, TableIntentType, TableReactionEvent, TableSnapshot } from '@bluff-table/protocol';
+import type { CardRank, Character, PlayEvent, PlayerColor, TableErrorEvent, TableFaceEvent, TableIntents, TableIntentType, TableLookEvent, TableReactionEvent, TableSnapshot } from '@bluff-table/protocol';
 import type { Language, TranslationKey, TranslationValues } from '../i18n';
 import type { WidgetPreference } from '../stores/ui/widgets/types';
 import type { soundCues } from './sounds';
@@ -50,6 +50,20 @@ export interface DeviceService {
   isTouch: () => boolean;
 }
 
+// Little pictures of people's faces, drawn by code, for chips and lists (spec §8.6): an image URL.
+export interface PortraitService {
+  portrait: (character: Character, color: PlayerColor) => string;
+}
+
+// The cards' pictures, drawn by code (spec §8.6), as image URLs for the HTML: your hand, ghosts'
+// sight and the rule book.
+export interface CardArtService {
+  face: (rank: CardRank) => string;
+  back: () => string;
+  // A revolver's cylinder with `left` chambers still to pull (spec D15).
+  cylinder: (left: number) => string;
+}
+
 export interface TranslatorService {
   translate: (language: Language, key: TranslationKey, values?: TranslationValues) => string;
   formatTime: (language: Language, at: number) => string;
@@ -73,8 +87,13 @@ export interface AddressService {
 
 export interface TableLinkListeners {
   snapshot: (snapshot: TableSnapshot) => void;
+  // What just happened at the table, in order (spec §10.4): after the snapshot that shows it.
+  play: (events: PlayEvent[]) => void;
   // Someone else's reaction.
   reaction: (event: TableReactionEvent) => void;
+  // Where someone else's head points now (spec §7.1), and the face they pull (§7.2).
+  look: (event: TableLookEvent) => void;
+  face: (event: TableFaceEvent) => void;
   // The connection dropped (the table holds the seat for a while), or came back.
   connection: (state: TableConnectionState) => void;
   // The seat is gone for good: the table closed, or getting back in took too long.
@@ -119,6 +138,8 @@ export interface Services {
   address: AddressService;
   tableClient: TableClientService;
   sounds: SoundsService;
+  portraits: PortraitService;
+  cardArt: CardArtService;
   device: DeviceService;
   schedule: Schedule;
   repeat: Schedule;
