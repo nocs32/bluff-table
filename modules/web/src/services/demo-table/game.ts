@@ -32,6 +32,13 @@ export interface DemoGameHost {
 
 type Holder = Pick<DemoMember, 'name' | 'color' | 'character'>;
 
+// Two timeouts in a row and a bot plays your seat until you move again (spec §4.5).
+const timeoutsBeforeStandIn = 2;
+
+// A bot playing for someone still at the table waits this much longer, so they can take their seat
+// back, as at a live table.
+const standInWaitMs = 4000;
+
 // The game at the demo table, as the server plays it (spec §10.3): the engine's rules, and the
 // pace around them (the turn clock, the cards flipping, the gun's 10 seconds, the beat before the
 // click or the bang, the pause between rounds). Sample players and bots play their seats with the
@@ -43,6 +50,7 @@ export class DemoGame {
   endsAt = 0;
   readonly #holders = new Map<string, Holder>();
   readonly #standIns = new Set<string>();
+  readonly #timeouts = new Map<string, number>();
   readonly #brains = new Map<string, BotPersonality>();
   readonly #deps: DemoDeps;
   readonly #host: DemoGameHost;
@@ -77,7 +85,11 @@ export class DemoGame {
   move(seat: string, move: Move): TableErrorCode | null {
     if (this.phase !== 'round' || this.step !== 'turn') return 'WRONG_PHASE';
 
-    return this.#apply(seat, move, []);
+    const error = this.#apply(seat, move, []);
+
+    if (!error) this.#acted(seat);
+
+    return error;
   }
 
   // A person presses Pull the trigger.
@@ -86,6 +98,7 @@ export class DemoGame {
 
     if (this.state.step.seat !== seat) return 'NOT_YOUR_TURN';
 
+    this.#acted(seat);
     this.#press(seat, false);
 
     return null;
@@ -134,6 +147,7 @@ export class DemoGame {
   #seat(members: readonly DemoMember[]): void {
     this.#holders.clear();
     this.#standIns.clear();
+    this.#timeouts.clear();
 
     members.forEach(({ id, name, color, character }) => {
       this.#holders.set(id, { name, color, character });
@@ -206,10 +220,17 @@ export class DemoGame {
     if (state.step.kind === 'pull' && this.step === 'pull' && this.#isBot(state.step.seat)) {
       const seat = state.step.seat;
 
-      this.#plans.later('bot', this.#between(gamePace.botPullMs), () => this.#press(seat, false));
+      this.#plans.later('bot', this.#waitFor(seat) + this.#between(gamePace.botPullMs), () => this.#press(seat, false));
     }
 
-    if (state.step.kind === 'turn' && this.#isBot(state.round.turn)) this.#plans.later('bot', this.#between(gamePace.botThinkMs), () => this.#botMove());
+    if (state.step.kind === 'turn' && this.#isBot(state.round.turn)) this.#plans.later('bot', this.#waitFor(state.round.turn) + this.#between(gamePace.botThinkMs), () => this.#botMove());
+  }
+
+  // Someone a bot stands in for who's still here gets a few seconds to move themselves.
+  #waitFor(seat: string): number {
+    const member = this.#host.members().find((other) => other.id === seat);
+
+    return member && !member.bot && !member.sample ? standInWaitMs : 0;
   }
 
   #botMove(): void {
@@ -225,7 +246,25 @@ export class DemoGame {
   #timeout(): void {
     const timeout = this.state ? timeoutMove(this.state, this.#deps.random) : null;
 
-    if (timeout) this.#apply(timeout.seat, timeout.move, [{ type: 'timedOut', seat: timeout.seat, step: 'turn' }]);
+    if (!timeout) return;
+
+    this.#timedOut(timeout.seat);
+    this.#apply(timeout.seat, timeout.move, [{ type: 'timedOut', seat: timeout.seat, step: 'turn' }]);
+  }
+
+  // A person ran out of time: twice in a row, and a bot plays for them.
+  #timedOut(seat: string): void {
+    const count = (this.#timeouts.get(seat) ?? 0) + 1;
+
+    this.#timeouts.set(seat, count);
+
+    if (count >= timeoutsBeforeStandIn) this.#standIns.add(seat);
+  }
+
+  // A person moved themselves: they're back.
+  #acted(seat: string): void {
+    this.#timeouts.delete(seat);
+    this.#standIns.delete(seat);
   }
 
   // Someone has to pull: first the called cards flip, one at a time; then the gun's out.
@@ -249,7 +288,11 @@ export class DemoGame {
 
     if (step?.kind !== 'pull') return;
 
-    this.#stage('pull', gamePace.pullMs, () => this.#press(step.seat, true));
+    this.#stage('pull', gamePace.pullMs, () => {
+      this.#timedOut(step.seat);
+      this.#press(step.seat, true);
+    });
+
     this.#wakeBot();
   }
 

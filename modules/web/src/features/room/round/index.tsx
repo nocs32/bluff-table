@@ -40,7 +40,7 @@ export const RoomRound = observer(function RoomRound(): ReactElement {
       </RoomRoundTop>
       <RoomRoundBottom data-foot>
         <RoomRoundMirror />
-        {game.pull.isMine ? <RoomRoundGun /> : game.match.isAlive && <RoomRoundHand />}
+        {game.pull.isMine ? <RoomRoundGun /> : game.showsHand && <RoomRoundHand />}
       </RoomRoundBottom>
       <RoomRoundBam />
       {game.isOver && <RoomRoundOver />}

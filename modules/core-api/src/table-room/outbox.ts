@@ -1,4 +1,4 @@
-import type { TableEvents } from '@bluff-table/protocol';
+import type { PlayEvent, SecretSnapshot, TableEvents } from '@bluff-table/protocol';
 import type { TableRoomFeed } from './feed.js';
 import type { TableRoomView } from './view.js';
 
@@ -8,22 +8,26 @@ export interface TableRoomOutboxDeps {
   feed: TableRoomFeed;
   // The shared part of the table, the same for everyone.
   view: () => TableRoomView;
+  // What only this person may see (D24).
+  secret: (memberId: string) => SecretSnapshot;
+  // What happened at the table since the last flush, as everyone may see it.
+  drainPlayed: () => PlayEvent[];
   now: () => number;
   send: TableRoomOutboxSend;
-  broadcast: <K extends keyof TableEvents>(type: K, message: TableEvents[K]) => void;
 }
 
 // What one browser has been sent so far.
 interface TableRoomOutboxSeen {
   feedSeq: number;
+  view: string;
 }
 
-// What goes out after every change (spec §10.4): the shared view to everyone when it changed, and
-// to each browser the feed lines it hasn't had. A browser gets nothing personal until it asks with
-// `sync`, so it's listening by then. With the rules, each person's own hand goes out from here
-// too, and nobody else's (D24).
+// What goes out after every change (spec §10.4), to each browser that has asked with `sync` (so
+// it's listening by then): its view when it changed (the table, and its own secrets with it, so a
+// hand never arrives without the round it belongs to), then what just happened, then the feed lines
+// it hasn't had. Nobody is ever sent another living player's cards, the house before the round
+// ends unless the barkeep whispered it to them, or where a bullet is (D24).
 export class TableRoomOutbox {
-  #view = '';
   readonly #seen = new Map<string, TableRoomOutboxSeen>();
   readonly #deps: TableRoomOutboxDeps;
 
@@ -34,10 +38,11 @@ export class TableRoomOutbox {
   // Everything again, for a browser that just joined or reconnected: the table and the chat.
   sync(memberId: string): void {
     const { feed, send } = this.#deps;
+    const view = this.#viewFor(memberId, this.#deps.view());
 
-    send(memberId, 'view', { now: this.#deps.now(), ...this.#deps.view() });
+    send(memberId, 'view', { now: this.#deps.now(), ...view });
     send(memberId, 'feed', { reset: true, items: feed.items });
-    this.#seen.set(memberId, { feedSeq: feed.seq });
+    this.#seen.set(memberId, { feedSeq: feed.seq, view: JSON.stringify(view) });
   }
 
   // Their connection dropped or they left: nothing personal until they sync again.
@@ -46,27 +51,32 @@ export class TableRoomOutbox {
   }
 
   flush(): void {
-    const view = this.#deps.view();
-    const text = JSON.stringify(view);
+    const shared = this.#deps.view();
+    const played = this.#deps.drainPlayed();
 
-    if (text !== this.#view) {
-      this.#view = text;
-      this.#deps.broadcast('view', { now: this.#deps.now(), ...view });
-    }
-
-    this.#seen.forEach((seen, memberId) => this.#flushPersonal(memberId, seen));
+    this.#seen.forEach((seen, memberId) => this.#flushTo(memberId, seen, shared, played));
   }
 
   dispose(): void {
     this.#seen.clear();
   }
 
-  #flushPersonal(memberId: string, seen: TableRoomOutboxSeen): void {
+  #viewFor(memberId: string, shared: TableRoomView): TableRoomView & { secret: SecretSnapshot } {
+    return { ...shared, secret: this.#deps.secret(memberId) };
+  }
+
+  #flushTo(memberId: string, seen: TableRoomOutboxSeen, shared: TableRoomView, played: readonly PlayEvent[]): void {
     const { feed, send } = this.#deps;
+    const view = this.#viewFor(memberId, shared);
+    const text = JSON.stringify(view);
     const items = feed.since(seen.feedSeq);
+
+    if (text !== seen.view) send(memberId, 'view', { now: this.#deps.now(), ...view });
+
+    if (played.length > 0) send(memberId, 'play', { events: [...played] });
 
     if (items.length > 0) send(memberId, 'feed', { reset: false, items });
 
-    this.#seen.set(memberId, { feedSeq: feed.seq });
+    this.#seen.set(memberId, { feedSeq: feed.seq, view: text });
   }
 }

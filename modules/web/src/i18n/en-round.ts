@@ -101,11 +101,19 @@ export const enRound = {
     bangYou: 'BAM! You’re a ghost now.',
     won: '{{name}} wins the game!',
     wonYou: 'You win the game!',
+    standIn: 'A bot plays for {{name}} now.',
+    standInYou: 'Out of time twice: a bot plays for you now.',
+    standInBackYou: 'Your seat is yours again.',
     more: 'Rules',
     timedOut: {
       turn: 'Out of time: the table moved for you.',
       pull: 'Out of time: the trigger pulled itself.',
     },
+  },
+  standIn: {
+    title: 'A bot is playing for you',
+    line: 'You ran out of time twice in a row. Make a move yourself on your next turn to take your seat back.',
+    now: 'It waits a few seconds for you: play, call or pull the trigger yourself to take your seat back.',
   },
   refused: {
     doubleUsed: 'You’ve had your Liar! ×2 this game.',

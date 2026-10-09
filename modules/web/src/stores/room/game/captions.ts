@@ -1,4 +1,4 @@
-import type { PlayEvent } from '@bluff-table/protocol';
+import type { PlayEvent, SeatSnapshot } from '@bluff-table/protocol';
 import { makeAutoObservable } from 'mobx';
 import type { Schedule } from '../../../services';
 import type { Translate } from '../../locale';
@@ -30,6 +30,8 @@ const maxShown = 3;
 export class RoomGameCaptionsStore {
   items: CaptionView[] = [];
   #next = 1;
+  // The seats a bot plays, as last seen (null: no game yet, so nothing to compare with).
+  #standIns: Set<string> | null = null;
   readonly #deps: RoomGameCaptionsDeps;
 
   constructor(deps: RoomGameCaptionsDeps) {
@@ -39,6 +41,22 @@ export class RoomGameCaptionsStore {
 
   receive(events: readonly PlayEvent[]): void {
     events.forEach((event) => this.#explain(event));
+  }
+
+  // The game's seats changed: a line when a bot takes over someone's seat, or gives yours back.
+  seats(seats: readonly SeatSnapshot[] | null): void {
+    const before = this.#standIns;
+    const now = new Set((seats ?? []).filter((seat) => seat.standIn && seat.alive).map((seat) => seat.id));
+
+    this.#standIns = seats ? now : null;
+
+    if (!before) return;
+
+    now.forEach((id) => {
+      if (!before.has(id)) this.#line('standIn', { name: id }, null, false);
+    });
+
+    if (before.has(this.#deps.match.meId) && !now.has(this.#deps.match.meId) && this.#deps.match.isAlive) this.#show(this.#deps.t('round.captions.standInBackYou'), null);
   }
 
   // A line from the room itself (a move turned down, say).
@@ -52,6 +70,7 @@ export class RoomGameCaptionsStore {
 
   clear(): void {
     this.items = [];
+    this.#standIns = null;
   }
 
   #explain(event: PlayEvent): void {

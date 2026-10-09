@@ -48,6 +48,11 @@ export class RoomGameMatchStore {
     return this.me !== null && !this.me.alive;
   }
 
+  // A bot is playing your seat: you ran out of time twice in a row (spec §4.5).
+  get isStoodIn(): boolean {
+    return this.isAlive && this.me?.standIn === true;
+  }
+
   get isSpectator(): boolean {
     return this.match !== null && this.me === null;
   }

@@ -22,6 +22,8 @@ export interface Occupant {
   name: string;
   color: PlayerColor;
   character: Character;
+  // The name on their tag: with a 🤖 while a bot plays their seat (spec §4.5).
+  tag: string;
 }
 
 // One of the five places across the table (spec §9.2): someone sitting in it, or a free chair. In a
@@ -45,7 +47,13 @@ export interface RevolverView {
   inHand: boolean;
 }
 
-const occupantOf = ({ id, name, color, character }: Occupant): Occupant => ({ id, name, color, character });
+const occupantOf = ({ id, name, color, character, standIn }: Omit<Occupant, 'tag'> & { standIn?: boolean }): Occupant => ({
+  id,
+  name,
+  color,
+  character,
+  tag: standIn ? `🤖 ${name}` : name,
+});
 
 // Who sits where, the bots, and whether there are enough players to start. You always sit at the
 // near edge; the others follow round the table in the order they sat down (spec §9.2). In a game,

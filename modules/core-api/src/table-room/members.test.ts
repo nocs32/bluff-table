@@ -25,12 +25,21 @@ test('a dropped member keeps their seat until they leave', () => {
 
   members.join('a', 'Ana');
   members.drop('a');
-  expect(members.all).toEqual([{ id: 'a', name: 'Ana', color: expect.any(String), connected: false, bot: false, character: expect.any(Object) }]);
+  expect(members.all).toEqual([{ id: 'a', name: 'Ana', color: expect.any(String), connected: false, bot: false, character: expect.any(Object), wins: 0 }]);
   expect(members.isConnected('a')).toBe(false);
   members.reconnect('a');
   expect(members.isConnected('a')).toBe(true);
   expect(members.leave('a').name).toBe('Ana');
   expect(members.count).toBe(0);
+});
+
+test('wins count up for the night; someone who already left has just the one', () => {
+  const members = new TableRoomMembers(Math.random);
+
+  members.join('a', 'Ana');
+  expect(members.win('a')).toBe(1);
+  expect(members.win('a')).toBe(2);
+  expect(members.win('gone')).toBe(1);
 });
 
 test('rename cleans the name and reports when nothing changed', () => {

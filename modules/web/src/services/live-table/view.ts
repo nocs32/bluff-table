@@ -3,7 +3,7 @@ import { feedMaxItems, noSecrets, type FeedItem, type GameSnapshot, type MemberS
 // Clock samples kept: the best of the recent ones wins.
 const maxSamples = 10;
 
-// Puts the server's view, feed and secrets back together into the snapshots the stores read, the same
+// Puts the server's view (with your secrets) and feed back together into the snapshots the stores read, the same
 // shape the demo table sends. Server times become this browser's times: each view carries the
 // server's clock, and the gap to ours, minus the trip, is the offset. A slow trip only makes a
 // sample smaller, so the largest recent one is the closest.
@@ -21,20 +21,17 @@ export class LiveTableView {
     this.#emit = emit;
   }
 
-  view({ now, members, game }: TableViewEvent): void {
+  // The table as you see it, your secrets with it.
+  view({ now, members, game, secret }: TableViewEvent): void {
     this.#samples = [...this.#samples, now - this.#now()].slice(-maxSamples);
     this.#members = members;
     this.#game = game;
+    this.#secret = secret;
     this.#send();
   }
 
   feed({ reset, items }: TableFeedEvent): void {
     this.#feed = (reset ? items : [...this.#feed, ...items]).slice(-feedMaxItems);
-    this.#send();
-  }
-
-  secret(secret: SecretSnapshot): void {
-    this.#secret = secret;
     this.#send();
   }
 
