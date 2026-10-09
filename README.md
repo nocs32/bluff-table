@@ -14,7 +14,7 @@ A bluffing card game you play with friends in the browser, in a cardboard Wester
 
 It's a sibling of [Felt Table](https://github.com/nocs32/felt-table-jigsaw), the multiplayer jigsaw, [Scribble Table](https://github.com/nocs32/scribble-table), the drawing-and-guessing game, [Telephone Table](https://github.com/nocs32/telephone-table), the telephone drawing game, and [Wild Table](https://github.com/nocs32/wild-table), the card game on a 3D table, and shares their stack and rules.
 
-> **Status:** set up (M0). The table opens, people and bots sit down in the lobby, and the settings, chat and reactions work, at live tables and at the demo table. The saloon, the characters, the cards and the game itself come next (M1), then the server's side of the game (M2), CI (M3) and hosting (M4).
+> **Status:** whole games play at live tables and at the demo table. The saloon, the characters and their builder, the lobby, the rounds, Liar! and the reveal, the revolver's tense pull with its BAM!, ghosts, faces, the whisper and the double call, the end of a game and the rule book are built (M1); the server runs the rules and the pace, keeps every hand private, plays bots' seats and stands in for people who leave or run out of time (M2). Every pull request and every push to `main` runs CI (M3); hosting on bluff.timnox.dev comes next (M4).
 
 ## Stack
 
@@ -25,7 +25,7 @@ It's a sibling of [Felt Table](https://github.com/nocs32/felt-table-jigsaw), the
 | Shared | `modules/protocol` (the contract between the two) and `modules/engine` (pure game logic) |
 | Tooling | pnpm workspaces, ESLint 10 + typescript-eslint, TypeScript 6.0 |
 
-The server runs the game. It will keep the deck, the hands and the revolvers, and send each person only what they may see: your own cards, never anyone else's (only ghosts see every hand), and never where a bullet is. Tables live in the server's memory only, so there is no database.
+The server runs the game. It keeps the deck, the hands and the revolvers, and sends each person only what they may see: your own cards, never anyone else's (only ghosts see every hand), and never where a bullet is. Tables live in the server's memory only, so there is no database.
 
 ## Getting started
 
