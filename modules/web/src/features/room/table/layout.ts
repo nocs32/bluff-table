@@ -25,6 +25,10 @@ export const stage = {
 // it's cut from has a thickness.
 export const tableTop = { width: stage.table.rx * 2 * 1.03, thickness: 0.07 } as const;
 
+// Where the felt ends inside the wooden rim (the drawing in art/saloon/table.ts): things lying on
+// the table keep inside it.
+export const feltOval = { rx: 1.7, rz: 0.92 } as const;
+
 // The table's wooden apron round its edge, and its legs down to the floor: the near ones show under
 // the rim, so the table stands at chair height instead of lying on the floor.
 export const tableBase = {
@@ -55,7 +59,7 @@ export const doorLeaf = {
 } as const;
 
 // Where the wanted posters are pinned, between the bar's shelves and the doors.
-export const posterSpots: ReadonlyArray<[number, number, number]> = [0.9, 1.7, 2.5, -5.2].map((x) => [x, stage.floorY + 2.55, stage.wall.z + 0.06]);
+export const posterSpots: ReadonlyArray<[number, number, number]> = [0.9, 1.7, 2.5, -5.2].map((x) => [x, stage.floorY + 2.05, stage.wall.z + 0.06]);
 
 // The top of the bar's counter, where the tent cards stand.
 export const counterTop = stage.floorY + 1.18;

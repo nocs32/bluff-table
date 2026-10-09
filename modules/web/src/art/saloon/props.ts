@@ -1,22 +1,26 @@
-import { at, box, cutOut, fitFont, makeCanvas, shape, text } from '../canvas';
+import { at, box, cutOut, fitFont, line, makeCanvas, shape, text } from '../canvas';
 import { paint } from '../palette';
 import { backPaint, cardBack } from '../people';
+import { cylinderFace } from './cylinder';
 
 // The little printed things in the saloon: name tags at each place, the switches' tent cards on the
 // bar, and what lies on the table. In the sketches' units, four pixels each.
 const scale = 4;
 
-// A place's name tag (spec §8.2): card stock with a band in the player's colour.
-export const drawNameTag = (name: string, colour: string): HTMLCanvasElement => {
-  const width = 96;
+// A place's name tag (spec §8.2): card stock with a band in the player's colour, their name, and
+// their revolver's cylinder at the end, with `left` chambers still to pull.
+export const drawNameTag = (name: string, colour: string, left: number): HTMLCanvasElement => {
+  const width = 124;
   const height = 30;
   const { canvas, ctx } = makeCanvas(width * scale, height * scale);
 
   ctx.scale(scale, scale);
   box(ctx, 2, 2, width - 4, height - 4, 4, paint.card, paint.ink, 2.5);
   box(ctx, 2, 2, 12, height - 4, [4, 0, 0, 4], colour, paint.ink, 2.5);
-  fitFont(ctx, name, width - 28, 15);
-  text(ctx, name, (width + 14) / 2, height / 2 + 1, paint.ink);
+  line(ctx, `M${width - 30},6 V${height - 6}`, paint.line, 1.5);
+  fitFont(ctx, name, width - 56, 15);
+  text(ctx, name, (width - 16) / 2, height / 2 + 1, paint.ink);
+  cylinderFace(ctx, width - 16, height / 2, 11, left);
 
   return cutOut(canvas, { border: 6 });
 };

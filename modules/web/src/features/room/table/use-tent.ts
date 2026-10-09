@@ -1,10 +1,9 @@
 import { useMemo } from 'react';
-import { stage } from './layout';
 
-// How far apart the tent cards stand, side by side.
-const spacing = 0.7;
+// How far either side of the deck the tent cards stand.
+const aside = 0.74;
 
-// The tent cards stand in a row on the far side of the felt, facing you, in front of the people
-// across the table.
+// The tent cards stand in the middle of the felt, either side of the deck, facing you: clear of the
+// name tags and the revolvers round the edge. The first goes on the left.
 export const useRoomTableTentSpot = (index: number, count: number): [number, number, number] =>
-  useMemo((): [number, number, number] => [(index - (count - 1) / 2) * spacing, 0, -stage.table.rz * 0.5], [index, count]);
+  useMemo((): [number, number, number] => [count === 1 ? -aside : (index * 2 - 1) * aside, 0, 0.05], [index, count]);

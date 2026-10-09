@@ -30,6 +30,8 @@ export const gameLimits = {
   // Made for 3 to 6 (D9). Deal needs two seats filled, people or bots (§4.2).
   minPlayers: 2,
   maxPlayers: 6,
+  // Everyone's own revolver: six chambers, one bullet, never re-spun (D15).
+  chambers: 6,
 } as const;
 
 export const defaultGameSettings: GameSettings = {

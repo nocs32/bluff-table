@@ -6,6 +6,7 @@ import {
   drawBackBar,
   drawChair,
   drawCounter,
+  drawCylinder,
   drawDeck,
   drawDoorLeaf,
   drawDoorway,
@@ -104,12 +105,15 @@ export const useChairTexture = (): CanvasTexture => useDisposal(useMemo(() => to
 
 export const useRevolverTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawRevolver()), []));
 
+// A cylinder with `left` chambers still to pull: drawn again after every pull.
+export const useCylinderTexture = (left: number): CanvasTexture => useDisposal(useMemo(() => toTexture(drawCylinder(left)), [left]));
+
 export const useDeckTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawDeck()), []));
 
 export const useTentTexture = (name: string, fonts: boolean): CanvasTexture => useDisposal(useMemo(() => toTexture(drawTentCard(name)), [name, fonts]));
 
-export const useNameTagTexture = (name: string, color: PlayerColor, fonts: boolean): CanvasTexture =>
-  useDisposal(useMemo(() => toTexture(drawNameTag(name, playerPaint[color])), [name, color, fonts]));
+export const useNameTagTexture = (name: string, color: PlayerColor, left: number, fonts: boolean): CanvasTexture =>
+  useDisposal(useMemo(() => toTexture(drawNameTag(name, playerPaint[color], left)), [name, color, left, fonts]));
 
 export interface PosterContent {
   character: Character;

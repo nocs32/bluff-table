@@ -114,6 +114,11 @@ export const uk = {
     chairHint: 'Вільне місце: натисніть, щоб посадити сюди бота',
     wanted: 'РОЗШУКУЄТЬСЯ',
     reward: 'Нагорода ${{amount}}',
+    revolverYours: 'Ваш револьвер',
+    revolverOf: 'Револьвер — {{name}}',
+    revolverHint: '{{owner}}: ще {{left}} з {{total}} камор, і в одній із них куля. {{odds}}',
+    revolverOdds: 'Наступне натискання: шанс 1 з {{left}}, що вистрілить.',
+    revolverCertain: 'Наступне натискання вистрілить напевно.',
   },
   chat: {
     slowDown: 'Надто швидко: надішліть ще раз за мить.',

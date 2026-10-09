@@ -14,7 +14,7 @@ interface RoomTablePlaceProps {
 }
 
 // One place across the table (spec §9.2): a chair, whoever sits in it, and their name tag on the
-// felt. A free chair in the lobby can be clicked to sit a bot in it, and says so (spec D22).
+// felt, with their cylinder on it. A free chair in the lobby can be clicked to sit a bot in it, and says so (spec D22).
 export const RoomTablePlace = observer(function RoomTablePlace({ place }: RoomTablePlaceProps): ReactElement {
   const { room, table } = useRootStore();
   const { player } = place;
@@ -22,6 +22,7 @@ export const RoomTablePlace = observer(function RoomTablePlace({ place }: RoomTa
   const spot = useRoomTablePlace(place.angle);
   const aim = useRoomTableSeatAim({ heads: room.heads, memberId: player?.id ?? '', angle: place.angle, memberIds: room.presence.ids, meId: room.presence.meId });
   const free = !player && room.seats.canAddBot;
+  const revolver = player ? room.seats.revolverOf(player.id) : null;
 
   return (
     <group>
@@ -36,7 +37,7 @@ export const RoomTablePlace = observer(function RoomTablePlace({ place }: RoomTa
         onClick={free ? room.seats.addBot : undefined}
       />
       {player && <RoomTablePerson character={player.character} color={player.color} position={spot.person} aim={aim} />}
-      {player && <RoomTableNameTag name={player.name} color={player.color} position={spot.tag} />}
+      {player && revolver && <RoomTableNameTag name={player.name} color={player.color} revolver={revolver} position={spot.tag} />}
     </group>
   );
 });

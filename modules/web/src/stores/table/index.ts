@@ -22,11 +22,14 @@ export interface TableInsets {
 }
 
 // What the pointer is over on the stage: the hanging lamp (poke it and it swings), a switch's tent
-// card (its tooltip says what the switch does), or a free chair (click it to sit a bot there).
-export type TableHover = { kind: 'lamp' } | { kind: 'chair' } | { kind: 'tent'; name: GameSwitch; hint: string };
+// card (its tooltip says what the switch does), someone's revolver or its cylinder (how many
+// chambers are left), or a free chair (click it to sit a bot there).
+export type TableHover = { kind: 'lamp' } | { kind: 'chair' } | { kind: 'tent'; name: GameSwitch; hint: string } | { kind: 'revolver'; id: string; hint: string };
 
 const sameTarget = (one: TableHover, other: TableHover): boolean => {
   if (one.kind === 'tent' && other.kind === 'tent') return one.name === other.name;
+
+  if (one.kind === 'revolver' && other.kind === 'revolver') return one.id === other.id;
 
   return one.kind === other.kind;
 };
@@ -68,6 +71,10 @@ export class TableStore {
     if (hovered.kind === 'lamp') return this.#t('table.lampHint');
 
     return hovered.kind === 'chair' ? this.#t('table.chairHint') : hovered.hint;
+  }
+
+  isRevolverHovered(id: string): boolean {
+    return this.hovered?.kind === 'revolver' && this.hovered.id === id;
   }
 
   get isLampHovered(): boolean {

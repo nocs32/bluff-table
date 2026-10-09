@@ -113,6 +113,11 @@ export const en = {
     chairHint: 'A free seat: click to sit a bot here',
     wanted: 'WANTED',
     reward: 'Reward ${{amount}}',
+    revolverYours: 'Your revolver',
+    revolverOf: '{{name}}’s revolver',
+    revolverHint: '{{owner}}: {{left}} of {{total}} chambers still to pull, and one of them holds the bullet. {{odds}}',
+    revolverOdds: 'Next pull: a 1 in {{left}} chance it fires.',
+    revolverCertain: 'The next pull fires for sure.',
   },
   chat: {
     slowDown: 'Too fast: send it again in a moment.',

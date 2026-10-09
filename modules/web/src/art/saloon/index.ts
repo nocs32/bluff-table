@@ -3,6 +3,7 @@
 export { drawApron } from './apron';
 export { drawBackBar, drawCounter, drawPolishing } from './bar';
 export { chairSize, drawChair } from './chair';
+export { drawCylinder } from './cylinder';
 export { drawDoorLeaf, drawDoorway } from './doors';
 export { drawLamp, lampFlame, lampSize } from './lamp';
 export { drawFloorShadow, drawTableLeg, legSize } from './leg';
