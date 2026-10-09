@@ -19,7 +19,7 @@ Setup commit first (M0, done), then each phase gets its own branch and PR (spec 
 
 **Every feature explains itself on screen** (spec D22). People join by link mid-evening and never read docs; the user didn't know what a "table card" was. The table card is always on show, truthful cards are marked in your hand, buttons say what's at stake, every switch and twist has one line saying what it does where it's used, and the rule book is one click away. Check it in every UI review.
 
-**Never use Liar's Bar's name, characters, art or mode names** (spec D2), in either language, in the UI, the rule book or the README. The call is **"Liar!"** (D21).
+**Never use Liar's Bar's name, characters, art or mode names** (spec D2), in either language, in the UI, the rule book or the README. The call is **"Liar!"** in both languages, Ukrainian too (D21).
 
 **Characters** (spec D7, §8.3): one hat, one kind of facial hair, at most one thin scar. Presets and random rolls never stack quirks (a blind eye, a plaster, a toothpick, a monocle, a gold tooth were "too much").
 

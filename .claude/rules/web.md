@@ -134,7 +134,7 @@ A `.tsx` component turns store data into JSX. Nothing else.
 - **Shared text that others see** (chat system lines) is stored as data (`{ type: 'renamed', name }`) and translated when shown, so each person reads it in their own language.
 - **Ukrainian system lines use the present tense** ("змінює стіл") so they don't depend on the person's gender.
 - Brand names (Bluff Table) and user content (names, messages) aren't translated.
-- **Never use Liar's Bar's name, characters, art or mode names** in any language (spec D2). The call is **"Liar!"** (D21).
+- **Never use Liar's Bar's name, characters, art or mode names** in any language (spec D2). The call is **"Liar!"** in both languages, Ukrainian too (D21).
 - **Assume nobody knows the game** (spec D22): every setting, button and twist says in one line what it does, right where it's used.
 
 ## Folder example
