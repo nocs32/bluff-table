@@ -14,7 +14,7 @@ A bluffing card game you play with friends in the browser, in a cardboard Wester
 
 It's a sibling of [Felt Table](https://github.com/nocs32/felt-table-jigsaw), the multiplayer jigsaw, [Scribble Table](https://github.com/nocs32/scribble-table), the drawing-and-guessing game, [Telephone Table](https://github.com/nocs32/telephone-table), the telephone drawing game, and [Wild Table](https://github.com/nocs32/wild-table), the card game on a 3D table, and shares their stack and rules.
 
-> **Status:** whole games play at live tables and at the demo table. The saloon, the characters and their builder, the lobby, the rounds, Liar! and the reveal, the revolver's tense pull with its BAM!, ghosts, faces, the whisper and the double call, the end of a game and the rule book are built (M1); the server runs the rules and the pace, keeps every hand private, plays bots' seats and stands in for people who leave or run out of time (M2). Every pull request and every push to `main` runs CI (M3); hosting on bluff.timnox.dev comes next (M4).
+> **Status:** whole games play at live tables and at the demo table. The saloon, the characters and their builder, the lobby, the rounds, Liar! and the reveal, the revolver's tense pull with its BAM!, ghosts, faces, the whisper and the double call, the end of a game and the rule book are built (M1); the server runs the rules and the pace, keeps every hand private, plays bots' seats and stands in for people who leave or run out of time (M2). Every pull request and every push to `main` runs CI (M3), and `pnpm play` hosts game nights at https://bluff.timnox.dev (M4).
 
 ## Stack
 
@@ -61,13 +61,13 @@ The ports sit one above Wild Table's (5176 and 2570), and above Telephone, Scrib
 | `pnpm typecheck` | Type-checks every module |
 | `pnpm test` | Runs the engine and core-api tests; one module: `pnpm --filter @bluff-table/core-api test` |
 | `pnpm build` | Builds the web app for production |
-| `pnpm play` | Builds, then serves the game at https://bluff.timnox.dev from this computer (set up in M4, see below) |
+| `pnpm play` | Builds, then serves the game at https://bluff.timnox.dev from this computer (see below) |
 
 **CI:** GitHub Actions (`.github/workflows/ci.yml`) runs lint, typecheck, test and build on every pull request and every push to `main`.
 
 ## Play with friends
 
-There's no cloud server: `pnpm play` will run Bluff Table on your own computer, and a free [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) puts it on **https://bluff.timnox.dev**. A tunnel is a connection your computer opens out to Cloudflare, so no router ports are opened, and your home address stays hidden behind Cloudflare.
+There's no cloud server: `pnpm play` runs Bluff Table on your own computer, and a free [Cloudflare Tunnel](https://developers.cloudflare.com/cloudflare-one/connections/connect-networks/) puts it on **https://bluff.timnox.dev**. A tunnel is a connection your computer opens out to Cloudflare, so no router ports are opened, and your home address stays hidden behind Cloudflare.
 
 ```bash
 pnpm play
@@ -79,7 +79,7 @@ pnpm play
 - Keep the computer awake while you play. Closing the terminal or restarting wipes the tables, like any server restart.
 - To ship a change, stop `pnpm play` and start it again. It rebuilds from what's checked out.
 
-**One-time setup** (M4): the `bluff-table` tunnel and its address don't exist yet. With `cloudflared` installed (`winget install Cloudflare.cloudflared`, then a new terminal so it's on PATH), it takes two commands:
+**One-time setup** on the computer that hosts. This PC has it already: the `bluff-table` tunnel was created in M4, and bluff.timnox.dev points at it. On another computer, install `cloudflared` (`winget install Cloudflare.cloudflared`, then a new terminal so it's on PATH), then:
 
 ```bash
 cloudflared tunnel create bluff-table

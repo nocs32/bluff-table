@@ -13,7 +13,7 @@ Setup commit first (M0, done), then each phase gets its own branch and PR (spec 
 1. **Web UI** (`feat/web-ui`), on local MobX stores against the demo table. **It starts with the polished cardboard saloon laid out for 6 seats, the heads (pointer, mirror, springs), the characters and their builder, and the lobby screen** (spec §9.1), reviewed together before the rest is built. Then rounds, Liar! and the reveal, the pull and death, ghosts, faces, the whisper and the double call, the end of a game, the rule book, the bots, phones, English and Ukrainian.
 2. **Backend, and connecting the UI to it** (`feat/live-tables`): the rules on the server, no-peeking messages, head sync under real lag, bots at live tables. Reviewed and checked together.
 3. **CI** (`feat/ci`). The workflow (`.github/workflows/ci.yml`) came with the setup commit and has checked every PR and push to `main` since (lint, typecheck, the engine and core-api tests, including the no-peeking room test, and the production build); the badge is in the README.
-4. **Hosting** (`feat/hosting`): `pnpm play` and a `bluff-table` Cloudflare Tunnel on bluff.timnox.dev (spec D26). Neither the tunnel nor the DNS record exists yet.
+4. **Hosting** (`feat/hosting`): `pnpm play` and the `bluff-table` Cloudflare Tunnel on bluff.timnox.dev (spec D26). The tunnel and its DNS record were created in M4 (2026-10-09; credentials in `~/.cloudflared/`).
 
 **Verify end to end in the built-in browser.** Mute the game's sounds in test tabs (`bluffTable.sound.setOn(false)` from the console), and shut down any headless browser you launch. Check every screen on a phone held sideways (812 × 375); after changing the emulated size, reload the tab so the layout watcher sees it.
 
@@ -77,7 +77,7 @@ pnpm typecheck
 pnpm test          # engine + core-api; one module: pnpm --filter @bluff-table/core-api test
 pnpm demo          # web only, against the demo table (no server): for UI work
 pnpm build         # production web build (CI runs lint, typecheck, test, build on every PR and push to main)
-pnpm play          # build + serve at https://bluff.timnox.dev from this PC through the bluff-table Cloudflare Tunnel (from M4)
+pnpm play          # build + serve at https://bluff.timnox.dev from this PC through the bluff-table Cloudflare Tunnel
 ```
 
 ## Gotchas
@@ -90,7 +90,7 @@ pnpm play          # build + serve at https://bluff.timnox.dev from this PC thro
 - **pnpm's release-age guard:** pnpm refuses versions published in the last day. Pick the previous version instead of adding exceptions.
 - **No shared Colyseus state, and no peeking** (spec D24, §10.4): each person's `view` carries their own `secret` (the engine's `secretsFor`): their hand while alive, every hand once a ghost, the whisper only if it was to them, nothing for a spectator; nobody is ever sent where a bullet is. `no-peeking.test.ts` plays games through a real room and checks every message each player and a spectator got. After joining or reconnecting, the browser asks for everything with `sync`.
 - **Stand-ins** (spec §4.5): a bot plays a seat whose person left (after the 20 seconds to reconnect) or ran out of time twice in a row. Their name tag gets a 🤖, a caption says so, and your own prompt tells you how to take your seat back (move yourself; the bot waits a few seconds for you).
-- **Hosting is `pnpm play`, not a cloud host** (free, no payment card), as in the siblings. It runs `vite preview` on `127.0.0.1:4177`, which reuses the dev `/api` + `/live` proxy and only accepts the bluff.timnox.dev host, plus core-api and the `bluff-table` Cloudflare Tunnel (`play-tunnel.mjs`). The tunnel and the DNS record get created in M4. Stop `pnpm dev` first, since both need port 2571.
+- **Hosting is `pnpm play`, not a cloud host** (free, no payment card), as in the siblings. It runs `vite preview` on `127.0.0.1:4177`, which reuses the dev `/api` + `/live` proxy and only accepts the bluff.timnox.dev host, plus core-api and the `bluff-table` Cloudflare Tunnel (`play-tunnel.mjs`, credentials in `~/.cloudflared/`). The tunnel and the bluff.timnox.dev DNS record exist since M4 (2026-10-09). Stop `pnpm dev` first, since both need port 2571. Right after `pnpm play` starts, the first page can say it can't reach the table for a few seconds while core-api starts: try again.
 - **The demo table** (spec D28): `services/demo-table` plays the server's part in the browser, with sample players who sit down and say hello. `pnpm dev` plays at live tables on core-api (`services/live-table`, behind the same `TableClientService`); `pnpm demo` plays at the demo table. The top bar's **Demo** buttons add or remove a sample player.
 - **Live tables live in core-api's memory:** `tsx watch` restarts core-api when you save a file there, and every table is gone. Open a new one. To play a live table alone, open its link in several tabs: each tab is its own person (its seat is kept in sessionStorage, so a reload gets it back).
 - **A dropped connection** keeps its seat for 20 seconds (`limits.ts`).
