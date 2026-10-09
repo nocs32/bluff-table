@@ -7,14 +7,16 @@ import { RoomRoundGhost } from './ghost';
 import { RoomRoundGun } from './gun';
 import { RoomRoundHand } from './hand';
 import { RoomRoundMirror } from './mirror';
+import { RoomRoundOrder } from './order';
 import { RoomRoundOver } from './over';
 import { RoomRoundPrompt } from './prompt';
+import { RoomRoundStamp } from './stamp';
 import { RoomRoundBottom, RoomRoundCloseIn, RoomRoundColumn, RoomRoundRedden, RoomRoundRoot, RoomRoundTop } from './styled-components';
 import { useRoomRoundInsets } from './use-insets';
 import { RoomRoundWhisper } from './whisper';
 
 // A game over the saloon (spec §9.2): the prompt with the table card and your whisper at the top
-// left, what just happened in the middle, a ghost's sight on the right; your mirror, your hand and
+// left, the turn order and what just happened in the middle, a ghost's sight on the right; your mirror, your hand and
 // your buttons along the bottom, or your gun when it's yours to pull. A bang puts the lights out;
 // the end of a game shows the summary.
 export const RoomRound = observer(function RoomRound(): ReactElement {
@@ -32,6 +34,7 @@ export const RoomRound = observer(function RoomRound(): ReactElement {
           <RoomRoundWhisper />
         </RoomRoundColumn>
         <RoomRoundColumn side="middle">
+          <RoomRoundOrder />
           <RoomRoundCaptions />
         </RoomRoundColumn>
         <RoomRoundColumn side="right">
@@ -42,6 +45,7 @@ export const RoomRound = observer(function RoomRound(): ReactElement {
         <RoomRoundMirror />
         {game.pull.isMine ? <RoomRoundGun /> : game.showsHand && <RoomRoundHand />}
       </RoomRoundBottom>
+      <RoomRoundStamp />
       <RoomRoundBam />
       {game.isOver && <RoomRoundOver />}
     </RoomRoundRoot>

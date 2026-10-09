@@ -33,6 +33,8 @@ export interface PlaceView {
   angle: number;
   player: Occupant | null;
   seat: SeatSnapshot | null;
+  // It's their turn: their name tag stands up taller (spec D22).
+  isTurn: boolean;
 }
 
 // Someone's revolver lying on the felt in front of them (spec D15): where it is round the table,
@@ -122,7 +124,9 @@ export class RoomSeatsStore {
     return seatSlots.map((angle) => {
       const player = others.find((occupant) => layout.get(occupant.id) === angle) ?? null;
 
-      return { angle, player, seat: player ? this.#deps.match.seat(player.id) : null };
+      const round = this.#deps.match.round;
+
+      return { angle, player, seat: player ? this.#deps.match.seat(player.id) : null, isTurn: player !== null && round?.step === 'turn' && round.turn === player.id };
     });
   }
 

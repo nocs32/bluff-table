@@ -42,9 +42,11 @@ const sameTarget = (one: TableHover, other: TableHover): boolean => {
 
 // The scripted moments (spec §8.4), read and written every frame outside React: how far the room
 // has dimmed for a pull, how far the camera has pushed in and towards where, and after a bang the
-// lights going out for a moment (`blackout`, from 1 down) and the camera's jolt.
+// lights going out for a moment (`blackout`, from 1 down) and the camera's jolt. And whose turn it
+// is: how far the spotlight on them is up (`spot`, 0 to 1).
 export interface TableDrama {
   dim: number;
+  spot: number;
   push: number;
   focus: { x: number; z: number };
   blackout: number;
@@ -65,7 +67,7 @@ export class TableStore {
   fontsReady = false;
   // How far the hanging lamp swings (radians), written every frame by the lamp: its light follows.
   readonly sway = { lamp: 0 };
-  readonly drama: TableDrama = { dim: 0, push: 0, focus: { x: 0, z: 0 }, blackout: 0, jolt: 0 };
+  readonly drama: TableDrama = { dim: 0, spot: 0, push: 0, focus: { x: 0, z: 0 }, blackout: 0, jolt: 0 };
   readonly #t: Translate;
   readonly #now: () => number;
   readonly #sounds: SoundsService;

@@ -1,4 +1,4 @@
-import type { PlayEvent, SeatSnapshot } from '@bluff-table/protocol';
+import { gamePace, type PlayEvent, type SeatSnapshot } from '@bluff-table/protocol';
 import { makeAutoObservable } from 'mobx';
 import type { Schedule } from '../../../services';
 import type { Translate } from '../../locale';
@@ -32,6 +32,8 @@ export class RoomGameCaptionsStore {
   #next = 1;
   // The seats a bot plays, as last seen (null: no game yet, so nothing to compare with).
   #standIns: Set<string> | null = null;
+  // Verdicts waiting for the called cards to finish flipping.
+  #pending: Array<() => void> = [];
   readonly #deps: RoomGameCaptionsDeps;
 
   constructor(deps: RoomGameCaptionsDeps) {
@@ -71,6 +73,8 @@ export class RoomGameCaptionsStore {
   clear(): void {
     this.items = [];
     this.#standIns = null;
+    this.#pending.forEach((cancel) => cancel());
+    this.#pending = [];
   }
 
   #explain(event: PlayEvent): void {
@@ -80,7 +84,7 @@ export class RoomGameCaptionsStore {
       case 'called':
         return this.#line(event.double ? 'calledDouble' : 'called', { name: event.seat, against: event.against }, 'liar', true);
       case 'revealed':
-        return this.#revealed(event);
+        return this.#afterFlip(event);
       case 'pulled':
         return this.#line(event.bang ? 'bang' : 'click', { name: event.seat }, 'revolver', event.bang);
       case 'gameOver':
@@ -98,6 +102,16 @@ export class RoomGameCaptionsStore {
     this.#show(t('round.captions.dealt', { round, rank: match.rankLabel() }), 'tableCard');
 
     if (whispered) this.#line('whispered', { name: whispered }, 'whisper', false);
+  }
+
+  // The verdict waits until the last called card has turned over, so it never gives the flip away.
+  #afterFlip(event: Extract<PlayEvent, { type: 'revealed' }>): void {
+    const cancel = this.#deps.schedule(() => {
+      this.#pending = this.#pending.filter((other) => other !== cancel);
+      this.#revealed(event);
+    }, event.cards.length * gamePace.revealCardMs + 150);
+
+    this.#pending = [...this.#pending, cancel];
   }
 
   #revealed({ seat, lie, by }: Extract<PlayEvent, { type: 'revealed' }>): void {

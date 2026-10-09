@@ -7,8 +7,21 @@ export const RoomRoundHandRoot = styled('div', {
   base: { gridColumn: '2 / -1', display: 'grid', gridTemplateColumns: 'minmax(0, 1fr) auto', alignItems: 'end', gap: '16px', minWidth: '0', '@media (max-height: 540px)': { gap: '8px' } },
 });
 
+// Out of your turn the cards sit a little lower and dimmer; on your turn they come up into the light.
+// (The row itself never moves: the camera frames the table above it.)
 export const RoomRoundHandCards = styled('ul', {
-  base: { display: 'flex', justifyContent: 'center', alignItems: 'end', gap: '8px', minWidth: '0', paddingTop: '18px', pointerEvents: 'auto', '@media (max-height: 540px)': { gap: '4px', paddingTop: '12px' } },
+  base: {
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'end',
+    gap: '8px',
+    minWidth: '0',
+    paddingTop: '18px',
+    pointerEvents: 'auto',
+    '& > li': { transition: 'translate 0.3s cubic-bezier(0.2, 0.8, 0.3, 1.2), filter 0.3s ease' },
+    '@media (max-height: 540px)': { gap: '4px', paddingTop: '12px' },
+  },
+  variants: { waiting: { true: { '& > li': { translate: '0 10px', filter: 'brightness(0.72)' } } } },
 });
 
 export const RoomRoundHandCardItem = styled('li', {
@@ -78,7 +91,8 @@ export const RoomRoundHandActionsRoot = styled('div', {
   variants: {
     waiting: {
       true: { opacity: '0.62' },
-      false: {},
+      // Your turn: the buttons glow brass, waiting for you.
+      false: { boxShadow: '0 0 0 3px {colors.brass.base}, 0 0 22px {colors.brass.base}' },
     },
   },
   defaultVariants: { waiting: false },

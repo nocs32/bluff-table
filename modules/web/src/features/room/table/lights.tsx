@@ -5,6 +5,7 @@ import { useRootStore } from '../../../stores/use-root-store';
 import { lampHang, stage } from './layout';
 import { lampIntensity, useRoomTableLights } from './use-lights';
 import { useRoomTableRoomLights } from './use-room-lights';
+import { useRoomTableTurnLight } from './use-turn-light';
 
 const { bar, floorY } = stage;
 
@@ -15,10 +16,12 @@ const levels = [0.45, 0.55, 5, 3, 0.55] as const;
 // One oil lamp lights the saloon (spec §8.1): a warm light from its flame that falls off fast, so
 // the table glows and the far wall sits in shadow, casting the cut-outs' shadows (none with lighter
 // graphics). A dimmer lamp over the bar keeps the back of the room in sight, and a faint light from
-// your side lets the faces across the table read. They all dim for a pull and go out on a bang.
+// your side lets the faces across the table read. They all dim for a pull and go out on a bang. A
+// spotlight picks out whoever's turn it is (spec D22).
 export const RoomTableLights = observer(function RoomTableLights(): ReactElement {
-  const { table, graphics } = useRootStore();
+  const { table, graphics, room } = useRootStore();
   const lamp = useRoomTableLights(table);
+  const turn = useRoomTableTurnLight(table, room.game.match, () => room.seats.layout);
   const [glow, sky, overBar, byDoors, front] = useRoomTableRoomLights(table, levels);
 
   return (
@@ -38,6 +41,8 @@ export const RoomTableLights = observer(function RoomTableLights(): ReactElement
       />
       <pointLight ref={overBar} position={[bar.x + 0.6, floorY + 2.6, bar.counterZ + 0.8]} intensity={levels[2]} decay={1.6} color={paint.warm} />
       <pointLight ref={byDoors} position={[stage.doors.x - 1.4, floorY + 2.6, stage.wall.z + 1.4]} intensity={levels[3]} decay={1.6} color={paint.warm} />
+      <primitive object={turn.target} />
+      <spotLight ref={turn.light} target={turn.target} intensity={0} angle={0.3} penumbra={0.75} decay={1.2} color={paint.glow} />
       <directionalLight ref={front} position={[0, 2, 6]} intensity={levels[4]} color={paint.card} />
     </>
   );

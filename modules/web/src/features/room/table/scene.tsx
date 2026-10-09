@@ -6,6 +6,7 @@ import { RoomTableBar } from './bar';
 import { RoomTableDoors } from './doors';
 import { RoomTableEffects } from './effects';
 import { RoomTableFurniture } from './furniture';
+import { RoomTableFuse } from './fuse';
 import { RoomTableLamp } from './lamp';
 import { RoomTableLights } from './lights';
 import { RoomTableMiddle } from './middle';
@@ -23,7 +24,7 @@ import { useRoomTablePointer } from './use-pointer';
 // The cardboard saloon (spec §8): every piece an ink drawing cut out of card, standing in layers
 // under one oil lamp. Back to front: the plank wall with the bar, the barkeep, the wanted posters
 // and the swinging doors; the chairs and the people across the table; the table with the deck and
-// everyone's revolver; and the lamp hanging over it all. With lighter graphics there's no glow or grain.
+// everyone's revolver, and your fuse in your turn's last seconds; and the lamp hanging over it all. With lighter graphics there's no glow or grain.
 export const RoomTableScene = observer(function RoomTableScene(): ReactElement {
   const { table, graphics, room } = useRootStore();
 
@@ -46,6 +47,7 @@ export const RoomTableScene = observer(function RoomTableScene(): ReactElement {
       <RoomTableFurniture />
       <RoomTableMiddle />
       <RoomTableRevolvers />
+      {room.game.turn.isBurning && <RoomTableFuse />}
       <RoomTableTents />
       <RoomTableLamp />
       {!graphics.isLight && <RoomTableEffects />}

@@ -1,8 +1,9 @@
 import type { SoundCue, SoundPlay, SoundsService } from './types';
 
 // The game's cues (spec §7.4): the turn's chime, the cards (a slap on the table, a deal, a riffle),
-// the fuse, and the lamp creaking on its chain. The rest of the saloon's sounds come in M1.
-export const soundCues = ['chime', 'slap', 'deal', 'shuffle', 'fuse', 'creak'] as const;
+// the fuse, the lamp creaking on its chain, and the gun: the cylinder turning, the hammer cocking,
+// the heartbeat while it's at someone's head, the dry click and the bang.
+export const soundCues = ['chime', 'slap', 'deal', 'shuffle', 'fuse', 'creak', 'cylinder', 'cock', 'heartbeat', 'click', 'bang'] as const;
 
 export type SoundUrls = Record<SoundCue, string>;
 
@@ -14,6 +15,11 @@ const cueLevels: Record<SoundCue, number> = {
   shuffle: 0.55,
   fuse: 0.3,
   creak: 0.55,
+  cylinder: 0.6,
+  cock: 0.75,
+  heartbeat: 0.45,
+  click: 0.85,
+  bang: 1,
 };
 
 interface Voice {

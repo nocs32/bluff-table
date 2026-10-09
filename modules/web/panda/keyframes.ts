@@ -68,6 +68,13 @@ export const keyframes = defineKeyframes({
     from: { transform: 'scaleX(0)' },
     to: { transform: 'scaleX(1)' },
   },
+  // "Your turn!" slapped onto the screen, then fading (spec D22).
+  stamp: {
+    '0%': { transform: 'scale(1.7)', opacity: '0' },
+    '12%': { transform: 'scale(0.95)', opacity: '1' },
+    '20%, 72%': { transform: 'scale(1)', opacity: '1' },
+    '100%': { transform: 'scale(1)', opacity: '0' },
+  },
   // A card dealt into your hand.
   cardIn: {
     from: { opacity: '0', transform: 'translateY(40px)' },
