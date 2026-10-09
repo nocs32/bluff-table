@@ -1,6 +1,6 @@
 import type { GamePhase, GameSnapshot, Mood, PlayEvent, SecretSnapshot, TableErrorCode, TableIntentType } from '@bluff-table/protocol';
 import { makeAutoObservable, reaction } from 'mobx';
-import type { CardArtService, Schedule, SoundsService } from '../../../services';
+import type { CardArtService, PortraitService, Schedule, SoundsService } from '../../../services';
 import type { Translate } from '../../locale';
 import type { TableSend } from '../types';
 import { RoomGameCaptionsStore } from './captions';
@@ -9,6 +9,7 @@ import { RoomGameGunSoundsStore } from './gun-sounds';
 import { RoomGameHandStore } from './hand';
 import { RoomGameMatchStore } from './match';
 import { RoomGameMoodsStore } from './moods';
+import { RoomGameOrderStore } from './order';
 import { RoomGamePullStore } from './pull';
 import { RoomGameSecretsStore } from './secrets';
 import { RoomGameSettingsStore } from './settings';
@@ -23,6 +24,7 @@ export interface RoomGameDeps {
   now: () => number;
   sounds: SoundsService;
   cardArt: CardArtService;
+  portraits: PortraitService;
   // Two seats are filled, people or bots (spec §4.2).
   isReady: () => boolean;
   // Connected to the table: the turn's sounds stop while it's lost.
@@ -50,6 +52,8 @@ const lateCodes: ReadonlySet<TableErrorCode> = new Set(['NOT_YOUR_TURN', 'WRONG_
 // table runs the game; this only shows it and asks.
 export class RoomGameStore {
   state: GamePhase = 'lobby';
+  // Counts your turns as they start, so the "Your turn" stamp plays once for each (0: none yet).
+  turnStamp = 0;
   readonly settings: RoomGameSettingsStore;
   readonly match: RoomGameMatchStore;
   readonly clock: RoomGameClockStore;
@@ -60,6 +64,7 @@ export class RoomGameStore {
   readonly captions: RoomGameCaptionsStore;
   readonly secrets: RoomGameSecretsStore;
   readonly summary: RoomGameSummaryStore;
+  readonly order: RoomGameOrderStore;
   readonly #gunSounds: RoomGameGunSoundsStore;
   #listeners: RoomGameListener[] = [];
   #stopFuse: (() => void) | null = null;
@@ -79,6 +84,7 @@ export class RoomGameStore {
     this.captions = new RoomGameCaptionsStore({ t, match: this.match, schedule });
     this.secrets = new RoomGameSecretsStore({ t, match: this.match, cardArt });
     this.summary = new RoomGameSummaryStore({ t, send, match: this.match, winsOf: deps.winsOf });
+    this.order = new RoomGameOrderStore({ t, match: this.match, portraits: deps.portraits });
     makeAutoObservable(this, {}, { autoBind: true });
     this.#gunSounds = new RoomGameGunSoundsStore({ sounds: deps.sounds, match: this.match, pull: this.pull, isOn: () => this.isPlaying && deps.isLive() });
     this.#listenForSounds();
@@ -203,14 +209,20 @@ export class RoomGameStore {
     });
   }
 
-  // The turn's sounds (spec §7.4): a chime when it's your turn, and the fuse hissing while your
-  // last seconds burn.
+  // Your turn starts: the stamp and the chime (spec D22).
+  stampTurn(): void {
+    this.turnStamp += 1;
+    this.#deps.sounds.play('chime');
+  }
+
+  // The turn's signals (spec §7.4): a stamp and a chime when it becomes your turn, and the fuse
+  // hissing while your last seconds burn.
   #listenForSounds(): void {
     const { sounds, isLive } = this.#deps;
 
     reaction(
       () => this.isPlaying && this.match.isMyTurn,
-      (mine) => mine && sounds.play('chime'),
+      (mine) => mine && this.stampTurn(),
     );
 
     reaction(

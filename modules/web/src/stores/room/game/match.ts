@@ -111,11 +111,11 @@ export class RoomGameMatchStore {
     return gameLimits.chambers - (this.seat(id)?.used ?? 0);
   }
 
-  // "Queens" (or "Queen"): what every play this round claims to be.
+  // "Queens" (or "a Queen"): what every play this round claims to be.
   rankLabel(many = true): string {
     const rank = this.tableRank;
 
-    return rank ? this.#deps.t(`round.ranks.${rank}.${many ? 'many' : 'one'}`) : '';
+    return rank ? this.#deps.t(`round.ranks.${rank}.${many ? 'many' : 'a'}`) : '';
   }
 
   receive(match: MatchSnapshot | null, secret: SecretSnapshot, meId: string): void {

@@ -2,10 +2,10 @@
 // (D21). Рядки з іменами — у теперішньому часі й з іменем наперед, щоб не залежати від роду.
 export const ukRound = {
   ranks: {
-    king: { one: 'Король', many: 'Королі' },
-    queen: { one: 'Дама', many: 'Дами' },
-    ace: { one: 'Туз', many: 'Тузи' },
-    joker: { one: 'Джокер', many: 'Джокери' },
+    king: { one: 'Король', many: 'Королі', a: 'Король' },
+    queen: { one: 'Дама', many: 'Дами', a: 'Дама' },
+    ace: { one: 'Туз', many: 'Тузи', a: 'Туз' },
+    joker: { one: 'Джокер', many: 'Джокери', a: 'Джокер' },
   },
   tableCard: 'Карта столу',
   bam: 'БАХ!',
@@ -55,6 +55,7 @@ export const ukRound = {
     seconds_few: 'лишилося {{count}} с',
     seconds_many: 'лишилося {{count}} с',
     seconds_other: 'лишилося {{count}} с',
+    stamp: 'Ваш хід!',
   },
   pull: {
     odds: 'Цей постріл: 1 з {{left}}.',
@@ -119,6 +120,22 @@ export const ukRound = {
       turn: 'Час вийшов: стіл ходить за вас.',
       pull: 'Час вийшов: гачок натиснувся сам.',
     },
+  },
+  order: {
+    label: 'Черговість',
+    you: 'Ви',
+    now: 'Зараз',
+    next: 'Далі',
+    nowTitle: 'Хід зараз: {{name}}',
+    nowTitleYou: 'Зараз ваш хід',
+    pullTitle: 'Тисне на гачок: {{name}}',
+    pullTitleYou: 'Вам тиснути на гачок',
+    nextTitle: 'Наступний хід: {{name}}',
+    nextTitleYou: 'Ваш хід наступний',
+    waitTitle: 'Чекає на свій хід: {{name}}',
+    waitTitleYou: 'Ви чекаєте на свій хід',
+    ghostTitle: 'Привид: {{name}}',
+    ghostTitleYou: 'Ви привид',
   },
   standIn: {
     title: 'За вас грає бот',

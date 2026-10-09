@@ -20,7 +20,7 @@ export const lightsOn = (blackout: number): number => {
 
 // The lamp's light follows the flame, every frame: when the lamp swings, the pool of light sways
 // across the table and the shadows swing with it (spec §8.1). It dims for a pull and flares on a
-// bang (spec §8.4).
+// bang (spec §8.4), and steps back a little while the spotlight shows whose turn it is.
 export const useRoomTableLights = (table: TableStore): RefObject<PointLight | null> => {
   const ref = useRef<PointLight>(null);
 
@@ -31,7 +31,7 @@ export const useRoomTableLights = (table: TableStore): RefObject<PointLight | nu
 
     light.position.x = lampHang.pivot[0] + Math.sin(table.sway.lamp) * reach;
     light.position.y = lampHang.pivot[1] - Math.cos(table.sway.lamp) * reach;
-    light.intensity = lampIntensity * (1 - table.drama.dim * 0.6) * lightsOn(table.drama.blackout);
+    light.intensity = lampIntensity * (1 - table.drama.dim * 0.6) * (1 - table.drama.spot * 0.22) * lightsOn(table.drama.blackout);
   });
 
   return ref;

@@ -287,3 +287,65 @@ export const RoomRoundOverButtons = styled('div', {
 export const RoomRoundFaceButton = styled('button', {
   base: { paddingInline: '10px', paddingBlock: '5px', borderRadius: '4px', border: '1.5px solid', borderColor: 'paper.line', bg: 'print.raised', fontFamily: 'display', fontSize: '13px', fontWeight: '800', color: 'print.ink', cursor: 'pointer', whiteSpace: 'nowrap', _hover: { bg: 'print.hover', borderColor: 'paper.ink' }, _focusVisible: { outline: '3px solid', outlineColor: 'accent.ring' } },
 });
+
+// The turn order: faces in a row on a dark strip, a chevron between each, the way the turn goes.
+export const RoomRoundOrderRoot = styled('ol', {
+  base: {
+    display: 'flex',
+    alignItems: 'start',
+    gap: '14px',
+    paddingInline: '12px',
+    paddingTop: '7px',
+    paddingBottom: '4px',
+    borderRadius: '4px',
+    bg: 'rgba(13, 9, 7, 0.82)',
+    boxShadow: 'inset 0 0 0 1px {colors.border.default}',
+    '@media (max-height: 540px)': { gap: '10px', paddingInline: '8px', paddingTop: '5px', paddingBottom: '2px' },
+  },
+});
+
+export const RoomRoundOrderItem = styled('li', {
+  base: {
+    position: 'relative',
+    display: 'grid',
+    justifyItems: 'center',
+    gap: '3px',
+    transition: 'opacity 0.3s ease, filter 0.3s ease',
+    '&:not(:last-child)::after': { content: '"›"', position: 'absolute', top: '4px', right: '-11px', color: 'paper.muted', fontWeight: '800', '@media (max-height: 540px)': { right: '-8px' } },
+  },
+  variants: { ghost: { true: { opacity: '0.45', filter: 'grayscale(1)' } } },
+});
+
+export const RoomRoundOrderFace = styled('div', {
+  base: { borderRadius: 'full', transition: 'transform 0.25s cubic-bezier(0.2, 0.8, 0.3, 1.3), box-shadow 0.25s ease' },
+  variants: { now: { true: { transform: 'scale(1.3)', boxShadow: '0 0 0 3px {colors.brass.base}, 0 0 14px {colors.brass.base}' } } },
+});
+
+export const RoomRoundOrderTag = styled('span', {
+  base: { minHeight: '12px', fontSize: '9px', fontWeight: '800', letterSpacing: '0.08em', lineHeight: '1.3', textTransform: 'uppercase', whiteSpace: 'nowrap' },
+  variants: { tone: { now: { color: 'brass.light', marginTop: '3px' }, you: { color: 'paper.bright' }, other: { color: 'paper.muted' } } },
+});
+
+// "Your turn!": a red ink stamp over the table, slapped down and then fading.
+export const RoomRoundStampRoot = styled('div', {
+  base: { position: 'absolute', inset: '0', zIndex: '4', display: 'grid', placeItems: 'center', paddingBottom: '18vh', pointerEvents: 'none' },
+});
+
+export const RoomRoundStampWord = styled('span', {
+  base: {
+    paddingInline: '26px',
+    paddingBlock: '6px',
+    border: '6px double',
+    borderColor: 'rust.base',
+    borderRadius: '8px',
+    bg: 'print.bg',
+    color: 'rust.base',
+    fontFamily: 'display',
+    fontSize: 'min(9vh, 64px)',
+    fontWeight: '900',
+    letterSpacing: '0.04em',
+    textTransform: 'uppercase',
+    boxShadow: 'cutout',
+    animation: 'stamp 1.7s ease-out forwards',
+  },
+});

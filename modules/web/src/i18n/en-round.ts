@@ -2,10 +2,11 @@
 // "Liar!" (D21). Every key needs a Ukrainian one in uk-round.ts.
 export const enRound = {
   ranks: {
-    king: { one: 'King', many: 'Kings' },
-    queen: { one: 'Queen', many: 'Queens' },
-    ace: { one: 'Ace', many: 'Aces' },
-    joker: { one: 'Joker', many: 'Jokers' },
+    // `a`: one of them in a sentence ("it's an Ace").
+    king: { one: 'King', many: 'Kings', a: 'a King' },
+    queen: { one: 'Queen', many: 'Queens', a: 'a Queen' },
+    ace: { one: 'Ace', many: 'Aces', a: 'an Ace' },
+    joker: { one: 'Joker', many: 'Jokers', a: 'a Joker' },
   },
   tableCard: 'Table card',
   // The comic-book word over a bang (spec §8.4).
@@ -14,7 +15,7 @@ export const enRound = {
   hand: {
     label: 'Your cards',
     pickFirst: 'Pick 1 to 3 cards',
-    play_one: 'Play 1 as a {{rank}}',
+    play_one: 'Play 1 as {{rank}}',
     play_other: 'Play {{count}} as {{rank}}',
     playHint: 'Face down: you’re saying they’re all {{rank}}. Lie if you must; someone may call it.',
     truthful: 'Tells the truth',
@@ -26,7 +27,7 @@ export const enRound = {
   turn: {
     openTitle: 'Your turn: the table card is {{rank}}',
     openLine: 'Pick 1 to 3 cards and play them face down. You’re saying they’re all {{rank}}, true or not.',
-    playedTitle_one: '{{name}} played 1 card, saying it’s a {{rank}}.',
+    playedTitle_one: '{{name}} played 1 card, saying it’s {{rank}}.',
     playedTitle_other: '{{name}} played {{count}} cards, saying they’re all {{rank}}.',
     playedLine: 'Believe it and play your own cards, or call Liar!',
     forcedTitle: 'Only you have cards left.',
@@ -34,7 +35,7 @@ export const enRound = {
     forcedLine_other: 'You must call Liar! on {{name}}’s {{count}} cards.',
     theirsTitle: '{{name}}’s turn',
     theirsOpen: '{{name}} opens the round. Every play claims to be {{rank}}.',
-    theirsPlayed_one: '{{last}} played 1 card as a {{rank}}. Will {{name}} believe it?',
+    theirsPlayed_one: '{{last}} played 1 card as {{rank}}. Will {{name}} believe it?',
     theirsPlayed_other: '{{last}} played {{count}} cards as {{rank}}. Will {{name}} believe it?',
     theirsForced: '{{name}} holds the only cards left, so they must call Liar!',
     call: 'Liar!',
@@ -45,6 +46,8 @@ export const enRound = {
     stakesWhispered: 'Careful: {{name}} got the barkeep’s whisper and may be the crook, whose lies are safe ({{used}} of {{total}} used).',
     doubleStakes: 'Whoever’s wrong pulls twice. Once a game: hold it for a second.',
     seconds: '{{count}} s left',
+    // Stamped over the table when your turn starts.
+    stamp: 'Your turn!',
   },
   pull: {
     odds: 'This pull: 1 in {{left}}.',
@@ -109,6 +112,23 @@ export const enRound = {
       turn: 'Out of time: the table moved for you.',
       pull: 'Out of time: the trigger pulled itself.',
     },
+  },
+  // The turn order strip: everyone's face, the way the turn goes round.
+  order: {
+    label: 'Turn order',
+    you: 'You',
+    now: 'Now',
+    next: 'Next',
+    nowTitle: '{{name}} plays now',
+    nowTitleYou: 'Your turn now',
+    pullTitle: '{{name}} has the gun out',
+    pullTitleYou: 'Your gun is out',
+    nextTitle: '{{name}} plays next',
+    nextTitleYou: 'You play next',
+    waitTitle: '{{name}} waits for their turn',
+    waitTitleYou: 'You wait for your turn',
+    ghostTitle: '{{name}} is a ghost',
+    ghostTitleYou: 'You’re a ghost',
   },
   standIn: {
     title: 'A bot is playing for you',

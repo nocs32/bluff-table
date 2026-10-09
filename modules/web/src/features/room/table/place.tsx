@@ -42,7 +42,7 @@ export const RoomTablePlace = observer(function RoomTablePlace({ place }: RoomTa
       />
       {player && <RoomTablePerson character={player.character} color={player.color} dead={seat !== null && !seat.alive} position={spots.person} aim={aims.person} />}
       {player && seat && !seat.alive && <RoomTableGhost occupant={player} position={spots.ghost} aim={aims.ghost} />}
-      {player && revolver && <RoomTableNameTag name={player.tag} color={player.color} revolver={revolver} position={spots.tag} />}
+      {player && revolver && <RoomTableNameTag name={player.tag} color={player.color} revolver={revolver} position={spots.tag} lifted={place.isTurn} />}
       {player && <RoomTableMarks occupant={player} spots={spots} />}
     </group>
   );

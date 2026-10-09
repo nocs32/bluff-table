@@ -11,7 +11,7 @@ export const RoomRoundHand = observer(function RoomRoundHand(): ReactElement {
 
   return (
     <RoomRoundHandRoot>
-      <RoomRoundHandCards data-cards aria-label={locale.t('round.hand.label')}>
+      <RoomRoundHandCards data-cards waiting={!room.game.match.isMyTurn} aria-label={locale.t('round.hand.label')}>
         {room.game.hand.cards.map((card) => (
           <RoomRoundHandCard key={card.id} card={card} />
         ))}
