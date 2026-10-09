@@ -1,0 +1,29 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dev",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["dev"],
+      "port": 5177
+    },
+    {
+      "name": "demo",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["demo"],
+      "port": 5177
+    },
+    {
+      "name": "web-live",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["--filter", "@bluff-table/web", "dev"],
+      "port": 5177
+    },
+    {
+      "name": "play-local",
+      "runtimeExecutable": "pnpm",
+      "runtimeArgs": ["exec", "concurrently", "--kill-others", "pnpm play:api", "pnpm play:web"],
+      "port": 4177
+    }
+  ]
+}
