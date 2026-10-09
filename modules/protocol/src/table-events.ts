@@ -5,12 +5,14 @@ import type { TableErrorEvent } from './table-errors.js';
 // Server → client events of the live table. The web app's table client turns them back into the
 // snapshots the stores read, the same shapes the demo table sends (spec D28).
 
-// The shared part of the table, the same for everyone. `now` is the server's clock, so browsers
-// can turn server times into their own.
+// The table as one person sees it: the part that's the same for everyone, and what only they may
+// see (D24), together, so a new hand never arrives without the round it belongs to. `now` is the
+// server's clock, so browsers can turn server times into their own.
 export interface TableViewEvent {
   now: number;
   members: MemberSnapshot[];
   game: GameSnapshot;
+  secret: SecretSnapshot;
 }
 
 // New feed lines, or (`reset`) all of them, after joining or reconnecting.
@@ -26,8 +28,6 @@ export interface TablePlayEvent {
 
 export interface TableEvents {
   view: TableViewEvent;
-  // What only you may see, whenever it changes (D24).
-  secret: SecretSnapshot;
   play: TablePlayEvent;
   feed: TableFeedEvent;
   reaction: TableReactionEvent;

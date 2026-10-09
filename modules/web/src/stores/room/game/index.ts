@@ -93,6 +93,11 @@ export class RoomGameStore {
     return this.state === 'over';
   }
 
+  // Your hand and its buttons: while you're alive in a game still being played.
+  get showsHand(): boolean {
+    return this.isPlaying && this.match.isAlive;
+  }
+
   get canDeal(): boolean {
     return this.isLobby && this.#deps.isReady();
   }
@@ -117,7 +122,18 @@ export class RoomGameStore {
   get prompt(): TurnPrompt | null {
     if (!this.isPlaying) return null;
 
-    return this.turn.prompt ?? this.pull.prompt;
+    return this.#standInPrompt ?? this.turn.prompt ?? this.pull.prompt;
+  }
+
+  // A bot is playing for you: how to take your seat back (spec §4.5, D22).
+  get #standInPrompt(): TurnPrompt | null {
+    const { match } = this;
+
+    if (!match.isStoodIn) return null;
+
+    const yours = match.isMyTurn || match.round?.puller?.seat === match.meId;
+
+    return { title: this.#deps.t('round.standIn.title'), line: this.#deps.t(yours ? 'round.standIn.now' : 'round.standIn.line') };
   }
 
   // You in your mirror, read every frame (spec §7.1, §8.4).
@@ -141,6 +157,7 @@ export class RoomGameStore {
     this.state = game.phase;
     this.settings.receive(game.settings);
     this.match.receive(game.match, secret, meId);
+    this.captions.seats(this.match.match ? this.match.seats : null);
     this.hand.tidy();
     this.pull.tidy();
 

@@ -14,6 +14,11 @@ export const limits = {
     emptyGraceMs: 10 * 60 * 1000,
     // A dropped connection keeps its seat this long (spec D25).
     reconnectSeconds: 20,
+    // A bot playing for someone still at the table waits this much longer when their turn comes (or
+    // their gun is out), so they can take their seat back (spec §4.5).
+    standInWaitMs: 4000,
+    // Looks go on to everyone else at most 15 a second per person (spec §7.1, §10.5).
+    lookRelayMs: 1000 / 15,
     // Hard cap on messages from one connection; Colyseus disconnects anyone above it.
     maxMessagesPerSecond: 100,
     // Per person and intent: at most `count` in any `windowMs`. Extra messages are refused.

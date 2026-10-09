@@ -18,7 +18,8 @@ import { logger } from '../logger.js';
 import { TableRoomBots } from './bots.js';
 import { TableRoomError } from './error.js';
 import { TableRoomFeed } from './feed.js';
-import { TableRoomGame } from './game.js';
+import { TableRoomGame } from './game/index.js';
+import { TableRoomHeads } from './heads/index.js';
 import { TableRoomLifecycle, type Schedule } from './lifecycle.js';
 import { TableRoomMembers } from './members.js';
 import { TableRoomOutbox } from './outbox.js';
@@ -34,11 +35,9 @@ const { table } = limits;
 // Intents that change nothing in the shared view: no view or feed to send afterwards.
 const quietIntents: ReadonlySet<TableIntentType> = new Set(['sync', 'react', 'look', 'face']);
 
-// The game's own moves, which live tables don't take yet.
-const gameIntents = ['start', 'play', 'call', 'pull', 'playAgain', 'toLobby'] as const satisfies readonly TableIntentType[];
-
-// Refusals that happen in normal play: a fast hand, a change that crossed the deal.
-const expectedRefusals: ReadonlySet<TableErrorCode> = new Set(['RATE_LIMITED', 'WRONG_PHASE', 'COLOR_TAKEN']);
+// Refusals that happen in normal play: a fast hand, a change that crossed the deal, a move that
+// crossed the clock.
+const expectedRefusals: ReadonlySet<TableErrorCode> = new Set(['RATE_LIMITED', 'WRONG_PHASE', 'COLOR_TAKEN', 'NOT_YOUR_TURN', 'NOT_PLAYING', 'MUST_CALL', 'NOTHING_TO_CALL']);
 
 // 12 characters of [0-9a-z]: about 62 bits, so table links can't be guessed.
 const createRoomId = customAlphabet('0123456789abcdefghijklmnopqrstuvwxyz', 12);
@@ -57,9 +56,9 @@ const readJoinOptions = (options: unknown): TableJoinOptions => {
   return result.output;
 };
 
-// One shared table. Its parts own the rules: who is here, the game and its settings, the bots,
-// the feed, what each person is sent, rate limits, and when the empty table is thrown away. This
-// class only wires them to Colyseus.
+// One shared table. Its parts own the rules: who is here, the game (its settings, its seats and its
+// pace, with the engine's rules), the bots, everyone's head, the feed, what each person is sent,
+// rate limits, and when the empty table is thrown away. This class only wires them to Colyseus.
 export class TableRoom extends Room<{ client: TableClient }> {
   override maxClients = table.maxClients;
   // The lifecycle decides when an empty table goes, not Colyseus.
@@ -74,15 +73,35 @@ export class TableRoom extends Room<{ client: TableClient }> {
   readonly #members = new TableRoomMembers(Math.random);
   readonly #feed = new TableRoomFeed({ now: Date.now, createId: randomUUID, maxItems: feedMaxItems });
   readonly #rateLimits = new TableRoomRateLimits(table.rates, Date.now);
-  readonly #game = new TableRoomGame({ members: this.#members, feed: this.#feed });
-  readonly #bots = new TableRoomBots({ members: this.#members, feed: this.#feed, game: this.#game, createId: randomUUID });
+  readonly #game = new TableRoomGame({ members: this.#members, feed: this.#feed, schedule: this.#schedule, now: Date.now, random: Math.random, changed: () => this.#changed() });
+
+  readonly #bots = new TableRoomBots({
+    members: this.#members,
+    feed: this.#feed,
+    game: this.#game,
+    schedule: this.#schedule,
+    random: Math.random,
+    createId: randomUUID,
+    changed: () => this.#changed(),
+  });
+
+  readonly #heads = new TableRoomHeads({
+    schedule: this.#schedule,
+    now: Date.now,
+    random: Math.random,
+    order: () => (this.#game.seats.ids.length > 0 ? this.#game.seats.ids : this.#members.all.map((member) => member.id)),
+    relayMs: table.lookRelayMs,
+    send: (memberId, type, message) => this.clients.getById(memberId)?.send(type, message),
+    broadcast: (type, message, exceptId) => this.broadcast(type, message, { except: this.clients.getById(exceptId) }),
+  });
 
   readonly #outbox = new TableRoomOutbox({
     feed: this.#feed,
     view: () => tableView({ members: this.#members.all, game: this.#game }),
+    secret: (memberId) => this.#game.secret(memberId),
+    drainPlayed: () => this.#game.drainPlayed(),
     now: Date.now,
     send: (memberId, type, message) => this.clients.getById(memberId)?.send(type, message),
-    broadcast: (type, message) => this.broadcast(type, message),
   });
 
   readonly #lifecycle = new TableRoomLifecycle({ schedule: this.#schedule, graceMs: table.emptyGraceMs, close: () => void this.disconnect() });
@@ -103,7 +122,7 @@ export class TableRoom extends Room<{ client: TableClient }> {
 
     this.#lifecycle.join();
     this.#feed.system(member, { type: 'joined' });
-    this.#outbox.flush();
+    this.#changed();
     logger.info('table joined', { roomId: this.roomId, sessionId: client.sessionId, people: this.#members.people, seats: this.#members.count });
   }
 
@@ -112,13 +131,13 @@ export class TableRoom extends Room<{ client: TableClient }> {
   override onDrop(client: TableClient): void {
     this.#members.drop(client.sessionId);
     this.#outbox.forget(client.sessionId);
-    this.#outbox.flush();
+    this.#changed();
     this.allowReconnection(client, table.reconnectSeconds);
   }
 
   override onReconnect(client: TableClient): void {
     this.#members.reconnect(client.sessionId);
-    this.#outbox.flush();
+    this.#changed();
   }
 
   override onLeave(client: TableClient): void {
@@ -128,13 +147,18 @@ export class TableRoom extends Room<{ client: TableClient }> {
 
     this.#rateLimits.forget(client.sessionId);
     this.#outbox.forget(client.sessionId);
+    this.#heads.forget(client.sessionId);
     this.#feed.system(member, { type: 'left' });
+    this.#game.leave(member.id);
     this.#lifecycle.leave(this.#members.people);
-    this.#outbox.flush();
+    this.#changed();
     logger.info('table left', { roomId: this.roomId, sessionId: client.sessionId, people: this.#members.people, seats: this.#members.count });
   }
 
   override onDispose(): void {
+    this.#bots.dispose();
+    this.#heads.dispose();
+    this.#game.dispose();
     this.#lifecycle.dispose();
     this.#rateLimits.dispose();
     this.#outbox.dispose();
@@ -142,7 +166,7 @@ export class TableRoom extends Room<{ client: TableClient }> {
   }
 
   #listen(): void {
-    this.#on('sync', (client) => this.#outbox.sync(client.sessionId));
+    this.#on('sync', (client) => this.#sync(client.sessionId));
     this.#on('updateSettings', (client, patch) => this.#game.updateSettings(client.sessionId, patch));
     this.#on('chat', (client, { text }) => this.#feed.message(this.#members.get(client.sessionId), text));
     this.#on('react', (client, { emoji }) => this.broadcast('reaction', { memberId: client.sessionId, emoji }, { except: client }));
@@ -150,16 +174,35 @@ export class TableRoom extends Room<{ client: TableClient }> {
     this.#on('addBot', (client) => this.#bots.add(client.sessionId));
     this.#on('removeBot', (client, { memberId }) => this.#bots.remove(client.sessionId, memberId));
     this.#on('dress', (client, { character, color }) => this.#members.dress(client.sessionId, character, color));
-    // Heads are passed straight on to everyone else (spec §7.1). Throttling and syncing them under
-    // real lag come with the live game (spec §12, M2).
-    this.#on('look', (client, { x, y }) => this.broadcast('look', { memberId: client.sessionId, x, y }, { except: client }));
-    this.#on('face', (client, { mood }) => this.broadcast('face', { memberId: client.sessionId, mood }, { except: client }));
-    // The game itself comes to live tables in M2 (spec §12): until then, only the demo table deals.
-    gameIntents.forEach((type) => this.#on(type, () => this.#notYet()));
+    // Heads go on to everyone else, at most 15 a second each (spec §7.1); faces straight away.
+    this.#on('look', (client, { x, y }) => this.#heads.look(client.sessionId, x, y));
+    this.#on('face', (client, { mood }) => this.#heads.face(client.sessionId, mood));
+    this.#listenToGame();
   }
 
-  #notYet(): never {
-    throw new TableRoomError('WRONG_PHASE');
+  // The game (spec §5): the game and the engine check each move against the rules.
+  #listenToGame(): void {
+    this.#on('start', (client) => this.#game.start(client.sessionId));
+    this.#on('play', (client, { cardIds }) => this.#game.move(client.sessionId, { type: 'play', cardIds }));
+    this.#on('call', (client, { double }) => this.#game.move(client.sessionId, { type: 'call', double }));
+    this.#on('pull', (client) => this.#game.pull(client.sessionId));
+    this.#on('playAgain', (client) => this.#game.playAgain(client.sessionId));
+    this.#on('toLobby', (client) => this.#game.toLobby(client.sessionId));
+  }
+
+  // Everything again for a browser that's listening now: the table, its secrets, the chat and
+  // where every head points.
+  #sync(memberId: string): void {
+    this.#outbox.sync(memberId);
+    this.#heads.sync(memberId);
+  }
+
+  // After every change: the bots look about and pick up their decisions, and everyone is sent what
+  // changed.
+  #changed(): void {
+    this.#heads.bots.seat(this.#members.all.filter((member) => member.bot).map((member) => member.id));
+    this.#bots.drive();
+    this.#outbox.flush();
   }
 
   // Every handler: validate the message, check the sender's rate, then call the part that owns it,
@@ -181,7 +224,7 @@ export class TableRoom extends Room<{ client: TableClient }> {
         this.#refuse(client, type, error.code);
       }
 
-      if (!quietIntents.has(type)) this.#outbox.flush();
+      if (!quietIntents.has(type)) this.#changed();
     });
   }
 

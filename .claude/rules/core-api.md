@@ -10,8 +10,8 @@ Node + Express 5 for HTTP, and Colyseus 0.18 for the live multiplayer rooms. The
 **Colyseus specifics:**
 - One process serves both: `new Server({ transport: new WebSocketTransport(), express: (app) => … })` in `src/index.ts`. Colyseus answers `/matchmake/*` and the WebSocket upgrades; everything else falls through to Express. No Redis (one process).
 - Room classes extend Colyseus `Room<{ client }>`. Class fields like `maxClients` and `autoDispose` are fine (Colyseus re-installs its accessors in `__init`).
-- **No Schema state, and no peeking** (spec D24, §10.4). The room sends each person their own view as messages, through `TableRoomOutbox` (the shapes are `TableEvents` in the protocol). Now: `view` (shared, sent when it changed), `feed`, `reaction` and `error`. With the game (spec §10.4): `hand` (to one living player: their cards), `hands` (to ghosts only), `whisper` (to the whispered player only), and the events everyone gets (`played` as a count, `called`, `revealed`, `pull`, `look`, `face`). Messages arrive in order, which state patches don't promise. A browser gets nothing personal until it sends `sync`.
-- **Nobody sees another hand,** not even in pieces: the living get a card count, and a card's face only once a Liar! flips it. Nobody but the whispered player learns the house before the round ends, and nobody is ever sent where a bullet is. The room test will record every message one player gets and check all three (spec §11).
+- **No Schema state, and no peeking** (spec D24, §10.4). The room sends each person their own messages, through `TableRoomOutbox` (the shapes are `TableEvents` in the protocol): `view` (the shared table plus that person's own `secret`: their hand, a ghost's sight, their whisper; sent when it changed), `play` (what just happened, as everyone may see it: a play is a count), `feed`, and through the heads `look` and `face`; `reaction` and `error` go straight out. Messages arrive in order, which state patches don't promise. A browser gets nothing until it sends `sync`.
+- **Nobody sees another hand,** not even in pieces: the living get a card count, and a card's face only once a Liar! flips it. Nobody but the whispered player learns the house before the round ends, and nobody is ever sent where a bullet is. `no-peeking.test.ts` records every message each player and a spectator get and checks all three (spec §11).
 - Message handlers follow rule 3 through the room's `#on(type, handle)`: valibot schema from the protocol, then the rate limit, then one call. Don't pass a schema to Colyseus's own `onMessage`/`validate`: a failed check there disconnects the sender. Refusals go back as an `error` event (`{ code }`).
 - Join options are checked in `onJoin`; a refused join throws `ServerError` with the typed code as its message.
 - Tests: unit tests per part (`*.test.ts` next to it) and room tests through a real server with `@colyseus/testing`: the lobby (`index.test.ts`, port 2594), and with the game a round with the no-peeking check (`no-peeking.test.ts`, port 2595). Run `pnpm --filter @bluff-table/core-api test`.
@@ -19,7 +19,7 @@ Node + Express 5 for HTTP, and Colyseus 0.18 for the live multiplayer rooms. The
 ## 1. Names follow the owner
 A unit that belongs to another starts with its owner's name:
 - `TableRoom` → `TableRoomGame` → `TableRoomGameClock`
-- `TableRoom` → `TableRoomRevolvers` → `TableRoomRevolversPull`
+- `TableRoom` → `TableRoomHeads` → `TableRoomHeadsBots`
 
 Shared building blocks are named for what they are: `logger`, `limits`.
 
@@ -37,10 +37,10 @@ This is the backend version of "components only render". Express route handlers 
 No game rules, storage or calculations inside handlers.
 
 ## 4. Logic lives in small state-machine classes
-- **Composed rooms** (spec §10.3). A room is built from small classes, each owning one concern: the game and its clock (`TableRoomGame`), the deck, hands and plays (`TableRoomCards`), the bullets, chambers and pulls (`TableRoomRevolvers`), looks and faces with their throttled relay (`TableRoomHeads`), the whisper (`TableRoomWhisper`), the bots (`TableRoomBots`), feed/chat, lifecycle (the 10-minute empty timer), rate limits. `TableRoom` only wires them together. Today it has the lobby's parts; the game's come in M2.
+- **Composed rooms** (spec §10.3). A room is built from small classes, each owning one concern: the game (`TableRoomGame`, with its seats `TableRoomGameSeats`, its match and pace `TableRoomGameMatch`, and its clock `TableRoomGameClock`), looks and faces with their throttled relay (`TableRoomHeads`, with the bots' heads in `TableRoomHeadsBots`), the bots (`TableRoomBots`), members, feed/chat, lifecycle (the 10-minute empty timer), rate limits, the outbox. `TableRoom` only wires them together. The cards, the revolvers and the whisper are all in the engine's one game state, so they need no room classes of their own.
 - **Explicit states.** Each class has a fixed set of states:
   - room lifecycle: `'active' | 'emptyGrace' | 'closed'`;
-  - the game: `'lobby'` for now; with the game, `lobby → round (turns…) → call → reveal → pull(s) → next round | game end → lobby`.
+  - the game: `lobby → round → over → (Play again) round | lobby`; within a round, the match's steps `turn → reveal → pull → pulling → roundOver → next deal`.
 - **Transitions** are methods named after events: `join`, `leave`, `deal`, `play`, `call`, `pull`, `expire`. An invalid transition is rejected with a typed error code.
 - **Pure game logic** (the decks and dealing, what's truthful, legal moves, the forced call, who pulls, the whisper's crook, the revolver, who starts next, the bots' choices) lives in the shared engine module and has no I/O.
 - **Tests.** Each state-machine class has unit tests for its transitions, including the rejected ones.
@@ -80,12 +80,14 @@ src/
    ├─ index.ts              TableRoom: wires the parts to Colyseus
    ├─ members.ts            TableRoomMembers (+ member-names.ts: the names it hands out)
    ├─ feed.ts               TableRoomFeed
-   ├─ game.ts               TableRoomGame: the phase and the settings (the rounds come in M2)
-   ├─ bots.ts               TableRoomBots: lobby seats (playing them comes in M2)
-   ├─ view.ts               what's sent: the shared view
+   ├─ game/                 TableRoomGame: phases and settings (index.ts), seats.ts, match.ts (the pace), clock.ts
+   ├─ heads/                TableRoomHeads: the look relay (index.ts), bots.ts (bots' heads)
+   ├─ bots.ts               TableRoomBots: lobby seats, playing them, standing in
+   ├─ view.ts               the shared view (each person's secret is added in the outbox)
    ├─ outbox.ts             TableRoomOutbox (what each person is sent, and when)
    ├─ rate-limits.ts        TableRoomRateLimits
    ├─ lifecycle.ts          TableRoomLifecycle
    ├─ error.ts              TableRoomError (a typed refusal)
-   └─ *.test.ts             (test-table.ts: the parts without a server; test-room.ts: a real room)
+   └─ *.test.ts             (test-table.ts: the parts on a hand-moved clock; test-room.ts: a real room;
+                             index.test.ts the lobby on 2594, no-peeking.test.ts games on 2595)
 ```

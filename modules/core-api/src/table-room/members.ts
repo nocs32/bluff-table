@@ -12,6 +12,8 @@ export interface TableRoomMember {
   readonly bot: boolean;
   // How they look (spec D7): a random character to start with.
   character: Character;
+  // Games won tonight: their bounty on the wanted posters (D16).
+  wins: number;
 }
 
 // Who is at the table, in the order they sat down. Each person is connected ⇄ reconnecting (a
@@ -68,7 +70,7 @@ export class TableRoomMembers {
     if (this.#members.has(id)) throw new TableRoomError('ALREADY_A_MEMBER');
 
     const name = cleanPersonName(requestedName ?? '') || pickMemberName(new Set(this.all.map((member) => member.name)), this.#random);
-    const member: TableRoomMember = { id, name, color: this.#freeColor(), connected: true, bot: false, character: rollCharacter(this.#random) };
+    const member: TableRoomMember = { id, name, color: this.#freeColor(), connected: true, bot: false, character: rollCharacter(this.#random), wins: 0 };
 
     this.#members.set(id, member);
 
@@ -78,7 +80,7 @@ export class TableRoomMembers {
   // A bot gets the first bot name nobody has.
   seatBot(id: string): TableRoomMember {
     const name = pickBotName(new Set(this.all.map((other) => other.name)));
-    const member: TableRoomMember = { id, name, color: this.#freeColor(), connected: true, bot: true, character: rollCharacter(this.#random) };
+    const member: TableRoomMember = { id, name, color: this.#freeColor(), connected: true, bot: true, character: rollCharacter(this.#random), wins: 0 };
 
     this.#members.set(id, member);
 
@@ -99,6 +101,17 @@ export class TableRoomMembers {
     this.#members.delete(id);
 
     return member;
+  }
+
+  // A game won: returns their wins tonight (someone who already left has just the one).
+  win(id: string): number {
+    const member = this.#members.get(id);
+
+    if (!member) return 1;
+
+    member.wins += 1;
+
+    return member.wins;
   }
 
   // Returns the cleaned-up name, or null when nothing changed.
