@@ -1,10 +1,11 @@
 import * as v from 'valibot';
-import { characterSchema } from './characters.js';
+import { characterSchema, wheelMoods } from './characters.js';
+import { gameLimits } from './game.js';
 import { personNameMaxLength, playerColors } from './players.js';
 
 // Bumped whenever an intent or an event changes shape. A web app on another version is turned
 // away with PROTOCOL_MISMATCH and asked to reload.
-export const tableProtocolVersion = 2;
+export const tableProtocolVersion = 3;
 
 // The Colyseus room type the web app creates and joins.
 export const tableRoomName = 'table';
@@ -72,6 +73,19 @@ export const tableIntentSchemas = {
   dress: v.strictObject({ character: characterSchema, color: v.picklist(playerColors) }),
   // Where your head points now (spec §7.1): up to 15 times a second, only when it moved.
   look: v.strictObject({ x: unit, y: unit }),
+  // A face from the wheel round your mirror (spec §7.2), ghosts too.
+  face: v.strictObject({ mood: v.picklist(wheelMoods) }),
+  // Deal the cards: anyone, from the lobby, with two seats filled (spec §4.2).
+  start: empty,
+  // Your turn: 1 to 3 of your cards face down, by their ids (spec §5.4).
+  play: v.strictObject({ cardIds: v.pipe(v.array(v.pipe(v.string(), v.maxLength(8))), v.minLength(1), v.maxLength(gameLimits.playMax)) }),
+  // Liar! on the previous play; `double` is Liar! ×2 (spec §5.9).
+  call: v.strictObject({ double: v.boolean() }),
+  // Pull the trigger, when it's your gun (spec §5.6).
+  pull: empty,
+  // After a game: deal the next one with everyone at the table, or go back to the lobby.
+  playAgain: empty,
+  toLobby: empty,
 };
 
 export type TableIntentType = keyof typeof tableIntentSchemas;

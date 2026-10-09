@@ -54,6 +54,7 @@ export const figurePaint = {
   pale: token('colors.figure.pale'),
   apron: token('colors.figure.apron'),
   back: token('colors.figure.back'),
+  joker: token('colors.figure.joker'),
   ghostInk: token('colors.ghost.ink'),
   ghostLight: token('colors.ghost.light'),
   ghost: token('colors.ghost.base'),

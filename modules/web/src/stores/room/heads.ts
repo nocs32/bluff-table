@@ -1,5 +1,5 @@
-import type { Mood, TableFaceEvent, TableLookEvent } from '@bluff-table/protocol';
-import { makeAutoObservable, observable } from 'mobx';
+import type { TableLookEvent } from '@bluff-table/protocol';
+import { makeAutoObservable } from 'mobx';
 import { Spring } from '../../utils/spring';
 import type { TableSend } from './types';
 
@@ -49,13 +49,12 @@ const aim = (head: HeadSprings, look: Look): void => {
   head.y.target = Math.max(-1, Math.min(1, look.y));
 };
 
-// Everyone's head (spec §7.1) and face (§7.2). Your own follows your pointer, your drag in the
+// Everyone's head (spec §7.1); their faces are the game's (`game/moods.ts`). Your own follows your pointer, your drag in the
 // mirror or the arrow keys, and goes out to the table; everyone else's comes in and is smoothed on
 // springs, so a late or missing update never makes a head jump. The springs are read every frame
 // by the stage and the mirror, outside React (spec §8.5).
 export class RoomHeadsStore {
   input: RoomHeadsInput = 'rest';
-  readonly moods = observable.map<string, Mood>();
   readonly mine: HeadSprings = newHead(restLook);
   readonly #others = new Map<string, HeadSprings>();
   readonly #deps: RoomHeadsDeps;
@@ -82,10 +81,6 @@ export class RoomHeadsStore {
     this.#others.set(memberId, head);
 
     return head;
-  }
-
-  moodOf(memberId: string): Mood {
-    return this.moods.get(memberId) ?? 'idle';
   }
 
   // The pointer is over the scene, looking at `look`. Ignored while your head is held.
@@ -140,10 +135,6 @@ export class RoomHeadsStore {
 
   receiveLook({ memberId, x, y }: TableLookEvent): void {
     aim(this.head(memberId), { x, y });
-  }
-
-  receiveFace({ memberId, mood }: TableFaceEvent): void {
-    this.moods.set(memberId, mood);
   }
 
   // Someone left: their head goes with them.

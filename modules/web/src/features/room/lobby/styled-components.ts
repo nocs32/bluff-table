@@ -224,6 +224,10 @@ export const RoomLobbyGameSwitches = styled('ul', {
 
 export const RoomLobbyGameSwitch = styled('li', {
   base: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '4px',
+    '& > :first-child': { flex: '1', minWidth: '0' },
     paddingBlock: '10px',
     paddingInline: '10px',
     borderRadius: '4px',

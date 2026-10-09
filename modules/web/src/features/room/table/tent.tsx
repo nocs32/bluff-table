@@ -13,10 +13,10 @@ interface RoomTableTentProps {
   count: number;
 }
 
-// One tent card on the felt: the switch's name, and its tooltip saying what it does (spec D22). It
-// pops up when the switch goes on.
+// One tent card on the felt: the switch's name, its tooltip saying what it does (spec D22), and a
+// click opens its part of the rule book. It pops up when the switch goes on.
 export const RoomTableTent = observer(function RoomTableTent({ view, index, count }: RoomTableTentProps): ReactElement {
-  const { table } = useRootStore();
+  const { table, ruleBook } = useRootStore();
   const texture = useTentTexture(view.label, table.fontsReady);
   const spot = useRoomTableTentSpot(index, count);
   const ref = useRoomTablePoke(table.hovered?.kind === 'tent' && table.hovered.name === view.name, true, 11 + index);
@@ -25,7 +25,7 @@ export const RoomTableTent = observer(function RoomTableTent({ view, index, coun
   return (
     <group position={spot}>
       <group ref={ref}>
-        <RoomTableCutout texture={texture} width={0.62} anchor="bottom" shadow onPointerOver={() => table.hover(target)} onPointerOut={() => table.leave(target)} />
+        <RoomTableCutout texture={texture} width={0.62} anchor="bottom" shadow onPointerOver={() => table.hover(target)} onPointerOut={() => table.leave(target)} onClick={() => ruleBook.open(view.section)} />
       </group>
     </group>
   );

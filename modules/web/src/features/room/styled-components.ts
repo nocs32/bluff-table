@@ -167,6 +167,7 @@ export const RoomMirrorRoot = styled('div', {
   base: { display: 'grid', justifyItems: 'center', gap: '6px', flexShrink: '0' },
   variants: {
     size: {
+      sm: { '--mirror': '104px', '@media (max-height: 540px)': { '--mirror': '74px' } },
       md: { '--mirror': '112px' },
       lg: { '--mirror': '150px', '@media (max-height: 540px)': { '--mirror': '112px' } },
     },

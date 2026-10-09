@@ -47,8 +47,13 @@ export const characterSchema = v.strictObject({
   coat: v.picklist(characterCoats),
 });
 
-// The faces a head can pull (spec §7.2): the game's own, set by what happens. The face wheel's
-// come with the rounds.
-export const moods = ['idle', 'suspicious', 'smirk', 'sweat', 'pull', 'phew', 'dead'] as const;
+// The faces a head can pull (spec §7.2): the game's own, set by what happens, and the face wheel's.
+export const moods = ['idle', 'suspicious', 'smirk', 'sweat', 'pull', 'phew', 'dead', 'angry', 'laugh', 'shock'] as const;
 
 export type Mood = (typeof moods)[number];
+
+// The face wheel round your mirror (spec §7.2): smug, suspicious, nervous, angry, laughing and
+// shocked, each held for a few seconds.
+export const wheelMoods = ['smirk', 'suspicious', 'sweat', 'angry', 'laugh', 'shock'] as const;
+
+export type WheelMood = (typeof wheelMoods)[number];

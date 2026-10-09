@@ -18,7 +18,7 @@ const defaultName = 'Curious Fox';
 export const createDemoTable = (deps: DemoDeps): TableClientService => ({
   open: (roomId, name, listeners) => {
     const meId = deps.createId();
-    const referee = new DemoReferee(deps, listeners);
+    const referee = new DemoReferee(deps, listeners, meId);
 
     const link: TableLink = {
       roomId: roomId ?? newRoomId(deps.random),
@@ -35,7 +35,7 @@ export const createDemoTable = (deps: DemoDeps): TableClientService => ({
     // After `open` resolves, so the store already knows who it is. Three sample players sit
     // down with you, and a fourth a little later.
     deps.schedule(() => {
-      const me: DemoMember = { id: meId, name: cleanPersonName(name ?? '') || defaultName, color: freeColor([]), connected: true, bot: false, sample: false, language: 'en', character: rollCharacter(deps.random) };
+      const me: DemoMember = { id: meId, name: cleanPersonName(name ?? '') || defaultName, color: freeColor([]), connected: true, bot: false, sample: false, language: 'en', character: rollCharacter(deps.random), wins: 0 };
 
       referee.join(me);
       [0, 1, 2].forEach(() => referee.addSample());

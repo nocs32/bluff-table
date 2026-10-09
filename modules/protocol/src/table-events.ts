@@ -1,4 +1,5 @@
-import type { FeedItem, GameSnapshot, MemberSnapshot, TableFaceEvent, TableLookEvent, TableReactionEvent } from './table.js';
+import type { PlayEvent } from './round.js';
+import type { FeedItem, GameSnapshot, MemberSnapshot, SecretSnapshot, TableFaceEvent, TableLookEvent, TableReactionEvent } from './table.js';
 import type { TableErrorEvent } from './table-errors.js';
 
 // Server → client events of the live table. The web app's table client turns them back into the
@@ -18,8 +19,16 @@ export interface TableFeedEvent {
   items: FeedItem[];
 }
 
+// What just happened at the table, in order, for everyone (spec §10.4).
+export interface TablePlayEvent {
+  events: PlayEvent[];
+}
+
 export interface TableEvents {
   view: TableViewEvent;
+  // What only you may see, whenever it changes (D24).
+  secret: SecretSnapshot;
+  play: TablePlayEvent;
   feed: TableFeedEvent;
   reaction: TableReactionEvent;
   look: TableLookEvent;

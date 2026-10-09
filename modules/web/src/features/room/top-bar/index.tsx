@@ -1,6 +1,6 @@
 import { observer } from 'mobx-react-lite';
 import type { ReactElement } from 'react';
-import { LogoMark, SendIcon, SpinnerIcon } from '../../../assets';
+import { BookIcon, LogoMark, SendIcon, SpinnerIcon } from '../../../assets';
 import { useRootStore } from '../../../stores/use-root-store';
 import { Button } from '../../../ui';
 import { RoomTopBarDemo } from './demo';
@@ -17,11 +17,10 @@ import {
   RoomTopBarStart,
 } from './styled-components';
 
-// The brand, the table's link, who's here, sound, language and Share (spec §9.1; the rule book's
-// button comes with the rule book). A phone has no room for the link: its browser shows it, and Share
-// copies it.
+// The brand, the table's link, who's here, the rule book, sound, language and Share (spec §9.1). A
+// phone has no room for the link: its browser shows it, and Share copies it.
 export const RoomTopBar = observer(function RoomTopBar(): ReactElement {
-  const { locale, room, ui } = useRootStore();
+  const { locale, room, ui, ruleBook } = useRootStore();
   const { t } = locale;
 
   return (
@@ -42,6 +41,10 @@ export const RoomTopBar = observer(function RoomTopBar(): ReactElement {
       {!ui.layout.isCompact && <RoomTopBarLink />}
       <RoomTopBarEnd>
         <RoomTopBarPeople />
+        <Button tone="ghost" size="sm" type="button" title={t('book.openHint')} onClick={() => ruleBook.open()}>
+          <BookIcon />
+          <RoomTopBarButtonLabel>{t('book.open')}</RoomTopBarButtonLabel>
+        </Button>
         <RoomTopBarSound />
         <RoomTopBarLanguage type="button" aria-label={locale.toggleLabel} title={locale.toggleLabel} onClick={locale.toggle}>
           {locale.code}

@@ -44,6 +44,10 @@ const describe = (event: FeedEvent, t: Translate): string => {
     case 'botAdded':
     case 'botRemoved':
       return t(`feed.${event.type}`, { name: event.name });
+    case 'died':
+      return t('feed.died', { round: event.round });
+    case 'gameWon':
+      return t('feed.gameWon', { bounty: event.bounty });
     default:
       return t(`feed.${event.type}`);
   }

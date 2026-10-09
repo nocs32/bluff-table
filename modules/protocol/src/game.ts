@@ -1,7 +1,7 @@
 // The game's phases, settings and limits (spec §4, §5.10).
 
-// Only the lobby for now: the game's own phases come with the rules (spec §10.3).
-export const gamePhases = ['lobby'] as const;
+// The lobby, a game's rounds, and its end with the summary and Play again (spec §10.3).
+export const gamePhases = ['lobby', 'round', 'over'] as const;
 
 export type GamePhase = (typeof gamePhases)[number];
 
@@ -32,6 +32,10 @@ export const gameLimits = {
   maxPlayers: 6,
   // Everyone's own revolver: six chambers, one bullet, never re-spun (D15).
   chambers: 6,
+  // A play is 1 to 3 cards (spec §5.4).
+  playMax: 3,
+  // What a win adds to your bounty on the wanted posters (D16).
+  bountyPerWin: 100,
 } as const;
 
 export const defaultGameSettings: GameSettings = {

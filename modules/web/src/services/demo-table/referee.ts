@@ -1,52 +1,85 @@
-import { applySettings, settingChanges } from '@bluff-table/engine';
+import { applySettings, settingChanges, type Move } from '@bluff-table/engine';
 import {
   chatMaxLength,
   cleanPersonName,
   defaultGameSettings,
   gameLimits,
+  type Character,
+  type FeedEvent,
   type GamePhase,
   type GameSettings,
-  type Character,
   type GameSettingsPatch,
+  type MatchSnapshot,
+  type PlayEvent,
   type PlayerColor,
+  type SecretSnapshot,
+  type TableErrorCode,
   type TableIntents,
   type TableIntentType,
 } from '@bluff-table/protocol';
 import type { TableLinkListeners } from '../types';
 import { DemoBots } from './bots';
 import { DemoFeed } from './feed';
+import { DemoGame } from './game';
 import { DemoHeads } from './heads';
-import { demoHandlers, type DemoHandlers } from './intents';
+import { demoHandlers, type DemoHandlers, type DemoMoves } from './intents';
 import { newBot, nextSample } from './rules';
 import type { DemoDeps, DemoMember, DemoTableState } from './types';
 import { snapshotFor } from './view';
 
 // Plays the server's part in the browser, with sample players (spec D28): who's at the table, the
-// bots, the settings and the chat. The real server (core-api) takes over behind the same
-// snapshots, events and intents, with the same rules: bots sit only in free seats, and someone
-// arriving at a full table takes the newest bot's seat. The game itself comes in M1.
+// bots, the settings, the chat and the game. The real server (core-api) takes over behind the
+// same snapshots, events and intents, with the same rules: bots sit only in free seats, someone
+// arriving at a full table takes the newest bot's seat, and only the lobby changes the table.
 export class DemoReferee implements DemoTableState {
   members: DemoMember[] = [];
   settings: GameSettings = { ...defaultGameSettings };
-  readonly phase: GamePhase = 'lobby';
   readonly #deps: DemoDeps;
   readonly #out: TableLinkListeners;
+  readonly #meId: string;
   readonly #feed: DemoFeed;
   readonly #bots: DemoBots;
   readonly #heads: DemoHeads;
+  readonly #game: DemoGame;
   readonly #handlers: DemoHandlers;
 
-  constructor(deps: DemoDeps, out: TableLinkListeners) {
+  constructor(deps: DemoDeps, out: TableLinkListeners, meId: string) {
     this.#deps = deps;
     this.#out = out;
+    this.#meId = meId;
     this.#feed = new DemoFeed(deps);
     this.#bots = new DemoBots(deps, { chat: (id, text) => this.chat(id, text) });
     this.#heads = new DemoHeads(deps, { members: () => this.members, look: out.look, face: out.face });
-    this.#handlers = demoHandlers(this);
+
+    this.#game = new DemoGame(deps, {
+      members: () => this.members,
+      settings: () => this.settings,
+      system: (id, event) => this.#system(id, event),
+      win: (id) => this.#win(id),
+      changed: (events) => this.#emit(events),
+    });
+
+    this.#handlers = demoHandlers({ chat: (id, text) => this.chat(id, text), ...this.#moves() });
+  }
+
+  get phase(): GamePhase {
+    return this.#game.phase;
+  }
+
+  get match(): MatchSnapshot | null {
+    return this.#game.snapshot();
   }
 
   get #isFull(): boolean {
     return this.members.length >= gameLimits.maxPlayers;
+  }
+
+  get #isLobby(): boolean {
+    return this.#game.phase === 'lobby';
+  }
+
+  secretFor(memberId: string): SecretSnapshot {
+    return this.#game.secret(memberId);
   }
 
   handle<T extends TableIntentType>(memberId: string, type: T, message: TableIntents[T]): void {
@@ -72,19 +105,8 @@ export class DemoReferee implements DemoTableState {
 
     this.members = this.members.filter((other) => other !== member);
     this.#heads.stop(member.id);
+    this.#game.leave(member.id);
     this.#feed.system(member, { type: 'left' });
-    this.#emit();
-  }
-
-  updateSettings(memberId: string, patch: GameSettingsPatch): void {
-    const author = this.#member(memberId);
-
-    if (!author) return;
-
-    const next = applySettings(this.settings, patch);
-
-    settingChanges(this.settings, next).forEach((change) => this.#feed.system(author, change));
-    this.settings = next;
     this.#emit();
   }
 
@@ -98,7 +120,67 @@ export class DemoReferee implements DemoTableState {
     this.#emit();
   }
 
-  rename(memberId: string, name: string): void {
+  // Demo buttons: a sample player sits down or gets up. Mid-game they watch until the next one.
+  addSample(): void {
+    const sample = nextSample(this.members, this.#deps.createId, this.#deps.random);
+
+    if (sample && (!this.#isFull || (this.#isLobby && this.members.some((member) => member.bot)))) this.join(sample);
+  }
+
+  removeSample(): void {
+    const sample = this.members.findLast((member) => member.sample);
+
+    if (sample) this.leave(sample.id);
+  }
+
+  dispose(): void {
+    this.#bots.cancel();
+    this.#heads.dispose();
+    this.#game.dispose();
+  }
+
+  // The moves the intents call, besides chat.
+  #moves(): Omit<DemoMoves, 'chat'> {
+    return {
+      updateSettings: (id, patch) => this.#lobbyOnly('updateSettings', () => this.#updateSettings(id, patch)),
+      rename: (id, name) => this.#rename(id, name),
+      addBot: (id) => this.#lobbyOnly('addBot', () => this.#addBot(id)),
+      removeBot: (id, botId) => this.#lobbyOnly('removeBot', () => this.#removeBot(id, botId)),
+      dress: (id, character, color) => this.#lobbyOnly('dress', () => this.#dress(id, character, color)),
+      look: (id, x, y) => this.#heads.mine(id, x, y),
+      face: () => undefined,
+      start: (id) => this.#answer('start', this.#game.start(id)),
+      move: (id, move: Move) => this.#answer(move.type, this.#game.move(id, move)),
+      pull: (id) => this.#answer('pull', this.#game.pull(id)),
+      playAgain: (id) => this.#answer('playAgain', this.#game.playAgain(id)),
+      toLobby: () => this.#answer('toLobby', this.#game.toLobby()),
+    };
+  }
+
+  // A game move's answer: refused, or everyone sees what changed (the game has already said so).
+  #answer(type: TableIntentType, code: TableErrorCode | null): void {
+    if (code) this.#out.refused({ type, code });
+    else if (type === 'toLobby') this.#emit();
+  }
+
+  #lobbyOnly(type: TableIntentType, action: () => void): void {
+    if (this.#isLobby) action();
+    else this.#out.refused({ type, code: 'WRONG_PHASE' });
+  }
+
+  #updateSettings(memberId: string, patch: GameSettingsPatch): void {
+    const author = this.#member(memberId);
+
+    if (!author) return;
+
+    const next = applySettings(this.settings, patch);
+
+    settingChanges(this.settings, next).forEach((change) => this.#feed.system(author, change));
+    this.settings = next;
+    this.#emit();
+  }
+
+  #rename(memberId: string, name: string): void {
     const member = this.#member(memberId);
     const clean = cleanPersonName(name);
 
@@ -109,7 +191,7 @@ export class DemoReferee implements DemoTableState {
     this.#emit();
   }
 
-  addBot(memberId: string): void {
+  #addBot(memberId: string): void {
     const author = this.#member(memberId);
 
     if (!author) return;
@@ -128,7 +210,7 @@ export class DemoReferee implements DemoTableState {
     this.#emit();
   }
 
-  removeBot(memberId: string, botId: string): void {
+  #removeBot(memberId: string, botId: string): void {
     const author = this.#member(memberId);
     const bot = this.#member(botId);
 
@@ -141,7 +223,7 @@ export class DemoReferee implements DemoTableState {
   }
 
   // A new look and colour; a colour someone else wears is refused, as at a live table.
-  dress(memberId: string, character: Character, color: PlayerColor): void {
+  #dress(memberId: string, character: Character, color: PlayerColor): void {
     const member = this.#member(memberId);
 
     if (!member) return;
@@ -158,40 +240,34 @@ export class DemoReferee implements DemoTableState {
     this.#emit();
   }
 
-  look(memberId: string, x: number, y: number): void {
-    this.#heads.mine(memberId, x, y);
+  #system(memberId: string, event: FeedEvent): void {
+    const member = this.#member(memberId);
+
+    if (member) this.#feed.system(member, event);
   }
 
-  // Demo buttons: a sample player sits down or gets up.
-  addSample(): void {
-    const sample = nextSample(this.members, this.#deps.createId, this.#deps.random);
+  #win(memberId: string): number {
+    const member = this.#member(memberId);
 
-    if (sample && (!this.#isFull || this.members.some((member) => member.bot))) this.join(sample);
-  }
+    if (member) member.wins += 1;
 
-  removeSample(): void {
-    const sample = this.members.findLast((member) => member.sample);
-
-    if (sample) this.leave(sample.id);
-  }
-
-  dispose(): void {
-    this.#bots.cancel();
-    this.#heads.dispose();
+    return (member?.wins ?? 0) * gameLimits.bountyPerWin;
   }
 
   // Someone is sitting down at a full table in the lobby: the newest bot gets up for them.
   #makeRoom(): void {
     const bot = this.members.findLast((member) => member.bot);
 
-    if (this.#isFull && bot) this.leave(bot.id);
+    if (this.#isFull && bot && this.#isLobby) this.leave(bot.id);
   }
 
   #member(id: string): DemoMember | undefined {
     return this.members.find((member) => member.id === id);
   }
 
-  #emit(): void {
-    this.#out.snapshot(snapshotFor(this, this.#feed));
+  #emit(events: readonly PlayEvent[] = []): void {
+    this.#out.snapshot(snapshotFor(this, this.#feed, this.#meId));
+
+    if (events.length > 0) this.#out.play([...events]);
   }
 }

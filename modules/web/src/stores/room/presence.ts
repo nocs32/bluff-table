@@ -1,4 +1,4 @@
-import type { Character, MemberSnapshot } from '@bluff-table/protocol';
+import { gameLimits, type Character, type MemberSnapshot } from '@bluff-table/protocol';
 import { makeAutoObservable } from 'mobx';
 import type { PortraitService } from '../../services';
 import type { Translate } from '../locale';
@@ -17,7 +17,8 @@ export interface PlayerView {
   character: Character;
   // Their face, drawn by code, for chips and lists.
   portrait: string;
-  // Tonight's wins, in dollars (spec D16): on their wanted poster.
+  // Games won tonight, and the bounty they make (spec D16): on their wanted poster.
+  wins: number;
   bounty: string;
   // The poster's reward line.
   reward: string;
@@ -126,8 +127,9 @@ export class RoomPresenceStore {
       note: this.#noteFor(member, isMe),
       character: member.character,
       portrait: this.#deps.portraits.portrait(member.character, member.color),
-      bounty: this.#deps.t('people.bounty', { amount: 0 }),
-      reward: this.#deps.t('table.reward', { amount: 0 }),
+      wins: member.wins,
+      bounty: this.#deps.t('people.bounty', { amount: member.wins * gameLimits.bountyPerWin }),
+      reward: this.#deps.t('table.reward', { amount: member.wins * gameLimits.bountyPerWin }),
     };
   }
 

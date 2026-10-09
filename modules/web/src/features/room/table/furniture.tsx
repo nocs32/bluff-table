@@ -2,19 +2,18 @@ import type { ReactElement } from 'react';
 import { DoubleSide } from 'three';
 import { RoomTableCutout } from './cutout';
 import { stage, tableBase, tableTop } from './layout';
-import { useApronTexture, useDeckTexture, useFloorShadowTexture, useTableLegTexture, useTableTexture } from './use-textures';
+import { useApronTexture, useFloorShadowTexture, useTableLegTexture, useTableTexture } from './use-textures';
 
 const { table, floorY } = stage;
 
 // The card table (spec §8.2): the felt in its wooden rim, a card cut-out lying flat under the lamp,
-// on a wooden apron and turned legs down to the floor, with its shadow under it; in the middle the
-// deck, squared up for the deal. Everyone's revolver lies at their place (revolvers.tsx).
+// on a wooden apron and turned legs down to the floor, with its shadow under it. What lies on it is
+// in middle.tsx and revolvers.tsx.
 export function RoomTableFurniture(): ReactElement {
   const top = useTableTexture();
   const apron = useApronTexture();
   const leg = useTableLegTexture();
   const shadow = useFloorShadowTexture();
-  const deck = useDeckTexture();
 
   return (
     <group>
@@ -30,7 +29,6 @@ export function RoomTableFurniture(): ReactElement {
         <circleGeometry args={[1, 48]} />
         <meshBasicMaterial map={shadow} transparent depthWrite={false} />
       </mesh>
-      <RoomTableCutout texture={deck} width={0.36} position={[0, 0.004, 0.05]} flat shadow />
     </group>
   );
 }

@@ -25,7 +25,7 @@ export const freeColor = (members: readonly DemoMember[]): PlayerColor =>
 export const nextSample = (members: readonly DemoMember[], createId: () => string, random: () => number): DemoMember | null => {
   const profile = sampleProfiles.find((candidate) => !members.some((member) => member.name === candidate.name));
 
-  return profile ? { id: createId(), ...profile, color: freeColor(members), connected: true, bot: false, sample: true, character: rollCharacter(random) } : null;
+  return profile ? { id: createId(), ...profile, color: freeColor(members), connected: true, bot: false, sample: true, character: rollCharacter(random), wins: 0 } : null;
 };
 
 // A bot, named the way the server names them.
@@ -38,4 +38,5 @@ export const newBot = (members: readonly DemoMember[], createId: () => string, r
   sample: false,
   language: 'en',
   character: rollCharacter(random),
+  wins: 0,
 });

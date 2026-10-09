@@ -8,12 +8,14 @@ import { RoomTableEffects } from './effects';
 import { RoomTableFurniture } from './furniture';
 import { RoomTableLamp } from './lamp';
 import { RoomTableLights } from './lights';
+import { RoomTableMiddle } from './middle';
 import { RoomTablePlaces } from './places';
 import { RoomTablePosters } from './posters';
 import { RoomTableRevolvers } from './revolvers';
 import { RoomTableRoom } from './room';
 import { RoomTableTents } from './tents';
 import { useRoomTableCamera } from './use-camera';
+import { useRoomTableDrama } from './use-drama';
 import { useRoomTableFrameRate } from './use-frame-rate';
 import { useRoomTableHeads } from './use-heads';
 import { useRoomTablePointer } from './use-pointer';
@@ -25,7 +27,8 @@ import { useRoomTablePointer } from './use-pointer';
 export const RoomTableScene = observer(function RoomTableScene(): ReactElement {
   const { table, graphics, room } = useRootStore();
 
-  useRoomTableCamera(table.insets);
+  useRoomTableCamera(table.insets, table.drama);
+  useRoomTableDrama(table, room.game.match, () => room.seats.layout);
   useRoomTableFrameRate(graphics.drop);
   useRoomTablePointer(table, room.heads);
   useRoomTableHeads(room.heads);
@@ -41,6 +44,7 @@ export const RoomTableScene = observer(function RoomTableScene(): ReactElement {
       <RoomTableDoors />
       <RoomTablePlaces />
       <RoomTableFurniture />
+      <RoomTableMiddle />
       <RoomTableRevolvers />
       <RoomTableTents />
       <RoomTableLamp />

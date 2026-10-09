@@ -9,7 +9,7 @@ const systemLines = ({ feed }: TestTable): unknown[] => feed.items.map((item) =>
 test('a new table waits in the lobby with the default settings', () => {
   const { game, members } = createTestTable(2);
 
-  expect(tableView({ members: members.all, game }).game).toEqual({ phase: 'lobby', settings: defaultGameSettings });
+  expect(tableView({ members: members.all, game }).game).toEqual({ phase: 'lobby', settings: defaultGameSettings, match: null });
 });
 
 test('anyone may change the settings; each change is clamped and gets a feed line', () => {

@@ -122,6 +122,8 @@ export const tokens = defineTokens({
       pale: { value: '#E2D8C4' },
       apron: { value: '#F6EEDB' },
       back: { value: '#7A2F2A' },
+      // The Joker's cap (spec §8.6), from the sketches.
+      joker: { value: '#7A4A9A' },
     },
     // A ghost (spec D17): the same drawing in pale blue.
     ghost: {

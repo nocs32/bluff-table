@@ -21,6 +21,20 @@ export const tableErrorCodes = [
   'NOT_A_BOT',
   // Someone else at the table already wears that colour.
   'COLOR_TAKEN',
+  // Deal needs two seats filled.
+  'NOT_ENOUGH_PLAYERS',
+  // A move from someone who isn't playing this game (a spectator), or is dead.
+  'NOT_PLAYING',
+  'NOT_YOUR_TURN',
+  // A play with a card that isn't in your hand, or the same card twice.
+  'NOT_IN_HAND',
+  // A call on the round's first turn: nothing to call yet.
+  'NOTHING_TO_CALL',
+  // A play when you hold the only cards left: you must call.
+  'MUST_CALL',
+  // A double call when you've had yours this game, or with the switch off.
+  'DOUBLE_USED',
+  'DOUBLE_OFF',
 ] as const;
 
 export type TableErrorCode = (typeof tableErrorCodes)[number];

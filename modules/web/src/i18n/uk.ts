@@ -1,5 +1,8 @@
 // Ukrainian UI strings: the same keys as en.ts. Plural keys need _one, _few, _many and _other.
 // Lines about people use the present tense, so they don't depend on the person's gender.
+import { ukBook } from './uk-book';
+import { ukRound } from './uk-round';
+
 export const uk = {
   language: {
     code: 'UA',
@@ -64,9 +67,7 @@ export const uk = {
     deal: 'Роздати карти',
     dealHint: 'Починає гру для всіх за столом.',
     dealWaiting: 'Для гри потрібно двоє гравців: запросіть когось або додайте бота.',
-    dealSoon: 'Роздача буде в наступній частині збірки: ця — салун і лобі, на перевірку.',
     newHere: 'Вперше тут? Правила за 2 хвилини',
-    rulesSoon: 'Книга правил з’явиться разом із раундами, у наступній частині збірки.',
   },
   character: {
     title: 'Ваш персонаж',
@@ -98,6 +99,7 @@ export const uk = {
     teal: 'Бірюзовий',
   },
   switches: {
+    more: 'Як працює «{{name}}» — у правилах',
     whisper: {
       name: 'Шепіт бармена',
       hint: 'Щораунду бармен шепоче одному гравцеві, чесний сьогодні дім чи шахрайський. Шахрайський означає, що той мусить брехати: його брехня безпечна, а правда коштує пострілу.',
@@ -148,6 +150,9 @@ export const uk = {
     setting: {
       turnSeconds: 'ставить час на хід: {{value}} с',
     },
+    gameStarted: 'роздає карти',
+    died: 'гине в раунді {{round}}',
+    gameWon: 'виграє гру: нагорода тепер ${{bounty}}',
   },
   reactions: {
     label: 'Реакції',
@@ -174,6 +179,8 @@ export const uk = {
     empty: 'Емодзі не знайдено',
     hint: 'Оберіть емодзі, щоб надіслати його',
   },
+  round: ukRound,
+  book: ukBook,
   demo: {
     title: 'Демо',
     hint: 'Гравці-приклади, без сервера',

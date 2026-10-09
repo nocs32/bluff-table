@@ -29,6 +29,14 @@ export const limits = {
       dress: { count: 20, windowMs: 5000 },
       // Up to 20 a second in (spec §10.5); the browser sends at most 15.
       look: { count: 20, windowMs: 1000 },
+      // One face a second (spec §10.5), with a little room for jitter.
+      face: { count: 3, windowMs: 2000 },
+      start: { count: 5, windowMs: 5000 },
+      play: { count: 10, windowMs: 5000 },
+      call: { count: 10, windowMs: 5000 },
+      pull: { count: 10, windowMs: 5000 },
+      playAgain: { count: 5, windowMs: 5000 },
+      toLobby: { count: 5, windowMs: 5000 },
     } satisfies Record<TableIntentType, Rate>,
   },
 } as const;

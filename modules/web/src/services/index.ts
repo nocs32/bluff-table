@@ -2,6 +2,7 @@ import { soundUrls } from '../assets';
 import { createAddress } from './address';
 import { createDemoTable } from './demo-table';
 import { createLiveTable } from './live-table';
+import { createCardArt } from './card-art';
 import { createPortraits } from './portraits';
 import { createPreferences } from './preferences';
 import { Sounds } from './sounds';
@@ -10,6 +11,7 @@ import type { Schedule, Services } from './types';
 
 export type {
   AddressService,
+  CardArtService,
   ClipboardService,
   SoundCue,
   SoundPlay,
@@ -57,6 +59,7 @@ export const createServices = (): Services => ({
   tableClient: isDemo ? createDemoTable({ schedule, random: Math.random, now: Date.now, createId }) : createLiveTable(window.location.origin, Date.now),
   sounds: new Sounds(window, soundUrls),
   portraits: createPortraits(),
+  cardArt: createCardArt(),
   device: { isTouch: () => window.matchMedia('(pointer: coarse)').matches },
   schedule,
   repeat,

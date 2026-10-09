@@ -1,6 +1,9 @@
 // English UI strings. Every key here needs a Ukrainian one in uk.ts (index.ts checks).
 // Plural keys use i18next suffixes (_one, _other); pass `count` to pick the form.
 // Never Liar's Bar's name, characters or mode names (spec D2). The call is "Liar!" (D21).
+import { enBook } from './en-book';
+import { enRound } from './en-round';
+
 export const en = {
   language: {
     code: 'EN',
@@ -63,9 +66,7 @@ export const en = {
     deal: 'Deal the cards',
     dealHint: 'Starts a game for everyone at the table.',
     dealWaiting: 'A game needs two players: invite someone, or add a bot.',
-    dealSoon: 'Dealing comes in the next part of the build: this one is the saloon and the lobby, for review.',
     newHere: 'New to this? The rules in 2 minutes',
-    rulesSoon: 'The rule book comes with the rounds, in the next part of the build.',
   },
   character: {
     title: 'Your character',
@@ -97,6 +98,7 @@ export const en = {
     teal: 'Teal',
   },
   switches: {
+    more: 'How {{name}} works, in the rules',
     whisper: {
       name: 'The barkeep’s whisper',
       hint: 'Each round the barkeep tells one player whether the house is straight or crooked. Crooked means they must lie: their lies are safe, and the truth gets them shot.',
@@ -145,6 +147,9 @@ export const en = {
     setting: {
       turnSeconds: 'set the time per turn to {{value}} s',
     },
+    gameStarted: 'dealt the cards',
+    died: 'died in round {{round}}',
+    gameWon: 'won the game: bounty now ${{bounty}}',
   },
   reactions: {
     label: 'Reactions',
@@ -171,6 +176,8 @@ export const en = {
     empty: 'No emoji found',
     hint: 'Pick an emoji to send it',
   },
+  round: enRound,
+  book: enBook,
   demo: {
     title: 'Demo',
     hint: 'Sample players, no server',

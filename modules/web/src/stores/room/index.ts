@@ -3,6 +3,7 @@ import { makeAutoObservable } from 'mobx';
 import type { DemoControls, Services } from '../../services';
 import type { LocaleStore, Translate } from '../locale';
 import { NameFieldStore } from '../name-field';
+import type { RuleBookStore } from '../rule-book';
 import type { UiStore } from '../ui';
 import { RoomCharacterStore } from './character';
 import { RoomChatPaceStore } from './chat-pace';
@@ -25,8 +26,9 @@ const createConnection = (room: RoomStore, services: Services, t: Translate): Ro
     receivers: {
       snapshot: (snapshot) => room.receiveSnapshot(snapshot),
       reaction: (event) => room.receiveReaction(event),
+      play: (events) => room.game.receivePlay(events),
       look: (event) => room.heads.receiveLook(event),
-      face: (event) => room.heads.receiveFace(event),
+      face: (event) => room.game.moods.receiveFace(event),
       refused: (event) => room.receiveRefusal(event),
     },
   });
@@ -57,7 +59,7 @@ export class RoomStore {
   readonly #services: Services;
   readonly #ui: UiStore;
 
-  constructor(services: Services, locale: LocaleStore, ui: UiStore) {
+  constructor(services: Services, locale: LocaleStore, ui: UiStore, ruleBook: RuleBookStore) {
     const { t } = locale;
     const send: TableSend = (type, message) => this.connection.link?.send(type, message);
 
@@ -66,11 +68,19 @@ export class RoomStore {
     this.connection = createConnection(this, services, t);
     this.presence = new RoomPresenceStore({ t, portraits: services.portraits });
 
-    this.game = new RoomGameStore({ t, send, notify: ui.notice.show, isReady: () => this.seats.isReady });
+    this.game = new RoomGameStore({
+      ...services,
+      t,
+      send,
+      isReady: () => this.seats.isReady,
+      isLive: () => this.connection.state === 'live',
+      winsOf: (id) => this.presence.find(id)?.wins ?? 0,
+      openRules: () => ruleBook.open(),
+    });
 
     const isLobby = (): boolean => this.game.state === 'lobby';
 
-    this.seats = new RoomSeatsStore({ t, presence: this.presence, send, isLobby });
+    this.seats = new RoomSeatsStore({ t, presence: this.presence, match: this.game.match, send, isLobby });
     this.heads = new RoomHeadsStore({ send, now: services.now });
     this.character = new RoomCharacterStore({ t, presence: this.presence, send, random: services.random, isLobby });
     this.chatPace = new RoomChatPaceStore({ t, now: services.now, schedule: services.schedule });
@@ -111,13 +121,15 @@ export class RoomStore {
   receiveSnapshot(snapshot: TableSnapshot): void {
     this.presence.receive(snapshot.members, this.connection.meId);
     this.heads.forget(this.presence.ids);
-    this.game.receive(snapshot.game);
+    this.game.receive(snapshot.game, snapshot.secret, this.connection.meId);
     this.feed.receive(snapshot.feed);
   }
 
   // A chat line the table turned down for coming too fast gets a note, instead of vanishing.
   receiveRefusal(event: TableErrorEvent): void {
     if (event.type === 'chat' && event.code === 'RATE_LIMITED') this.chatPace.refuse();
+
+    this.game.receiveRefusal(event.type, event.code);
   }
 
   receiveReaction(event: TableReactionEvent): void {

@@ -1,13 +1,15 @@
 import { observer } from 'mobx-react-lite';
 import type { ReactElement } from 'react';
 import { useRootStore } from '../../../stores/use-root-store';
-import { GameCard, SettingSlider, SettingSwitch } from '../../../ui';
+import { HelpIcon } from '../../../assets';
+import { GameCard, IconButton, SettingSlider, SettingSwitch } from '../../../ui';
 import { RoomLobbyGameSwitch, RoomLobbyGameSwitches } from './styled-components';
 
 // How a game runs (spec §5.10): the time per turn, and our two twists as switches, both off by
-// default. Each says in one line what it does (spec D22). Anyone may change them.
+// default. Each says in one line what it does (spec D22), with its part of the rule book behind a
+// (?). Anyone may change them.
 export const RoomLobbyGame = observer(function RoomLobbyGame(): ReactElement {
-  const { locale, room } = useRootStore();
+  const { locale, room, ruleBook } = useRootStore();
   const { settings } = room.game;
   const slider = settings.turnTime;
 
@@ -28,6 +30,9 @@ export const RoomLobbyGame = observer(function RoomLobbyGame(): ReactElement {
         {settings.switchViews.map((view) => (
           <RoomLobbyGameSwitch key={view.name} on={view.on}>
             <SettingSwitch label={view.label} hint={view.hint} checked={view.on} disabled={!settings.isEditable} surface="print" onChange={(on) => settings.setSwitch(view.name, on)} />
+            <IconButton surface="print" type="button" aria-label={view.more} title={view.more} onClick={() => ruleBook.open(view.section)}>
+              <HelpIcon />
+            </IconButton>
           </RoomLobbyGameSwitch>
         ))}
       </RoomLobbyGameSwitches>

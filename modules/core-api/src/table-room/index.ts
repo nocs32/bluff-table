@@ -32,7 +32,10 @@ type TableRoomHandler<K extends TableIntentType> = (client: TableClient, message
 const { table } = limits;
 
 // Intents that change nothing in the shared view: no view or feed to send afterwards.
-const quietIntents: ReadonlySet<TableIntentType> = new Set(['sync', 'react', 'look']);
+const quietIntents: ReadonlySet<TableIntentType> = new Set(['sync', 'react', 'look', 'face']);
+
+// The game's own moves, which live tables don't take yet.
+const gameIntents = ['start', 'play', 'call', 'pull', 'playAgain', 'toLobby'] as const satisfies readonly TableIntentType[];
 
 // Refusals that happen in normal play: a fast hand, a change that crossed the deal.
 const expectedRefusals: ReadonlySet<TableErrorCode> = new Set(['RATE_LIMITED', 'WRONG_PHASE', 'COLOR_TAKEN']);
@@ -150,6 +153,13 @@ export class TableRoom extends Room<{ client: TableClient }> {
     // Heads are passed straight on to everyone else (spec §7.1). Throttling and syncing them under
     // real lag come with the live game (spec §12, M2).
     this.#on('look', (client, { x, y }) => this.broadcast('look', { memberId: client.sessionId, x, y }, { except: client }));
+    this.#on('face', (client, { mood }) => this.broadcast('face', { memberId: client.sessionId, mood }, { except: client }));
+    // The game itself comes to live tables in M2 (spec §12): until then, only the demo table deals.
+    gameIntents.forEach((type) => this.#on(type, () => this.#notYet()));
+  }
+
+  #notYet(): never {
+    throw new TableRoomError('WRONG_PHASE');
   }
 
   // Every handler: validate the message, check the sender's rate, then call the part that owns it,

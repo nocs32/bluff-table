@@ -1,4 +1,4 @@
-import type { Character, PlayerColor } from '@bluff-table/protocol';
+import type { CardRank, Character, PlayerColor } from '@bluff-table/protocol';
 import { useEffect, useMemo } from 'react';
 import { CanvasTexture, RepeatWrapping, SRGBColorSpace } from 'three';
 import {
@@ -16,6 +16,10 @@ import {
   drawNameTag,
   drawPolishing,
   drawPoster,
+  drawShot,
+  drawTableCard,
+  drawTableCardStand,
+  drawWhisperMark,
   drawRevolver,
   drawTableLeg,
   drawTableTop,
@@ -108,6 +112,31 @@ export const useRevolverTexture = (): CanvasTexture => useDisposal(useMemo(() =>
 // A cylinder with `left` chambers still to pull: drawn again after every pull.
 export const useCylinderTexture = (left: number): CanvasTexture => useDisposal(useMemo(() => toTexture(drawCylinder(left)), [left]));
 
+const cardTextures = new Map<string, CanvasTexture>();
+
+// A card on the table: face down (null), or face up, with a red edge if it was a lie. There are
+// only a few pictures, shared by every card and kept for good; `fonts` redraws their letters once
+// the typefaces are in.
+export const useCardTexture = (rank: CardRank | null, lie: boolean, fonts: boolean): CanvasTexture =>
+  useMemo(() => {
+    const key = `${rank}|${lie}|${fonts}`;
+    const known = cardTextures.get(key);
+
+    if (known) return known;
+
+    const texture = toTexture(drawTableCard(rank, lie));
+
+    cardTextures.set(key, texture);
+
+    return texture;
+  }, [rank, lie, fonts]);
+
+export const useTableCardStandTexture = (rank: CardRank, fonts: boolean): CanvasTexture => useDisposal(useMemo(() => toTexture(drawTableCardStand(rank)), [rank, fonts]));
+
+export const useWhisperMarkTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawWhisperMark()), []));
+
+export const useShotTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawShot()), []));
+
 export const useDeckTexture = (): CanvasTexture => useDisposal(useMemo(() => toTexture(drawDeck()), []));
 
 export const useTentTexture = (name: string, fonts: boolean): CanvasTexture => useDisposal(useMemo(() => toTexture(drawTentCard(name)), [name, fonts]));
@@ -127,5 +156,5 @@ export const usePosterTexture = ({ character, color, wanted, name, reward }: Pos
   useDisposal(useMemo(() => toTexture(drawPoster({ character, color }, { wanted, name, reward })), [character, color, wanted, name, reward, fonts]));
 
 // A person's body, or a ghost's: it changes only with their character.
-export const useBodyTexture = (character: Character, color: PlayerColor, apron = false): CanvasTexture =>
-  useDisposal(useMemo(() => toTexture(renderFigure({ character, color, part: 'body', apron }, figureScale)), [character, color, apron]));
+export const useBodyTexture = (character: Character, color: PlayerColor, apron = false, ghost = false): CanvasTexture =>
+  useDisposal(useMemo(() => toTexture(renderFigure({ character, color, part: 'body', apron, ghost }, figureScale)), [character, color, apron, ghost]));

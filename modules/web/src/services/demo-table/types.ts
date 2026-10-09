@@ -1,4 +1,4 @@
-import type { Character, GamePhase, GameSettings, PlayerColor } from '@bluff-table/protocol';
+import type { Character, GamePhase, GameSettings, MatchSnapshot, PlayerColor, SecretSnapshot } from '@bluff-table/protocol';
 import type { Schedule } from '../types';
 
 export interface DemoDeps {
@@ -22,6 +22,8 @@ export interface DemoMember {
   sample: boolean;
   language: DemoLanguage;
   character: Character;
+  // Games won tonight (spec D16).
+  wins: number;
 }
 
 // The parts of the table that the views read.
@@ -29,4 +31,6 @@ export interface DemoTableState {
   readonly members: readonly DemoMember[];
   readonly phase: GamePhase;
   readonly settings: GameSettings;
+  readonly match: MatchSnapshot | null;
+  secretFor: (memberId: string) => SecretSnapshot;
 }

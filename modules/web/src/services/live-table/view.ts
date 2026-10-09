@@ -1,9 +1,9 @@
-import { feedMaxItems, type FeedItem, type GameSnapshot, type MemberSnapshot, type TableFeedEvent, type TableSnapshot, type TableViewEvent } from '@bluff-table/protocol';
+import { feedMaxItems, noSecrets, type FeedItem, type GameSnapshot, type MemberSnapshot, type SecretSnapshot, type TableFeedEvent, type TableSnapshot, type TableViewEvent } from '@bluff-table/protocol';
 
 // Clock samples kept: the best of the recent ones wins.
 const maxSamples = 10;
 
-// Puts the server's view and feed back together into the snapshots the stores read, the same
+// Puts the server's view, feed and secrets back together into the snapshots the stores read, the same
 // shape the demo table sends. Server times become this browser's times: each view carries the
 // server's clock, and the gap to ours, minus the trip, is the offset. A slow trip only makes a
 // sample smaller, so the largest recent one is the closest.
@@ -11,6 +11,7 @@ export class LiveTableView {
   #members: MemberSnapshot[] = [];
   #game: GameSnapshot | null = null;
   #feed: FeedItem[] = [];
+  #secret: SecretSnapshot = noSecrets;
   #samples: number[] = [];
   readonly #now: () => number;
   readonly #emit: (snapshot: TableSnapshot) => void;
@@ -32,6 +33,11 @@ export class LiveTableView {
     this.#send();
   }
 
+  secret(secret: SecretSnapshot): void {
+    this.#secret = secret;
+    this.#send();
+  }
+
   // How far the server's clock is ahead of ours.
   get #offset(): number {
     return this.#samples.length > 0 ? Math.max(...this.#samples) : 0;
@@ -43,10 +49,13 @@ export class LiveTableView {
 
     if (!game) return;
 
+    const round = game.match?.round;
+
     this.#emit({
       members: this.#members,
-      game,
+      game: game.match && round ? { ...game, match: { ...game.match, round: { ...round, endsAt: local(round.endsAt) } } } : game,
       feed: this.#feed.map((item) => ({ ...item, at: local(item.at) })),
+      secret: this.#secret,
     });
   }
 }
